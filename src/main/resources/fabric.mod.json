@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "rho-bytecode",
+  "version": "${version}",
+  "name": "Rho Bytecode",
+  "description": "",
+  "authors": [
+    "SuperCoder79"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/rho-bytecode/icon.png",
+  "environment": "*",
+  "entrypoints": {
+  },
+  "accessWidener": "rho.aw",
+  "mixins": [
+    "rho.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.14.8",
+    "minecraft": "1.19"
+  }
+}
