@@ -31,7 +31,7 @@ public class CodegenContext implements Opcodes {
         // FIXME: needs a deque of the whole context
         // Move context into inner class?
 
-        
+
         while (!this.methodStack.isEmpty()) {
             Pair<Node, String> pair = this.methodStack.pop();
             MethodVisitor methodVisitor = clazz.visitMethod(ACC_PUBLIC, pair.getSecond(), "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D", null, null);

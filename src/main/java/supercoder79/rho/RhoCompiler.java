@@ -52,7 +52,7 @@ public final class RhoCompiler {
 
         CodegenContext ctx = new CodegenContext(name, visitor, method);
 
-        node = RunOptoPasses.optimizeAst(ctx, node, false);
+        node = RunOptoPasses.optimizeAst(ctx, node, true);
 
         Label start = new Label();
         Label end = new Label();

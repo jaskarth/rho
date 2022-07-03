@@ -10,6 +10,11 @@ import java.util.List;
 public final class OptoPasses {
     public static final List<OptoPass> COMPILE_DONTOPTIMIZE = List.of(
             of(NormalizeTree::normalize, "NormTree"),
+            of(LowerAst::lower, "Lower")
+    );
+
+    public static final List<OptoPass> COMPILE_OPTIMIZETEST = List.of(
+            of(NormalizeTree::normalize, "NormTree"),
             of(FoldConstants::foldConstants, "FoldConst"),
             of(LowerAst::lower, "Lower")
     );
