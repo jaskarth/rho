@@ -1,12 +1,10 @@
 package supercoder79.rho.test;
 
 import net.minecraft.SharedConstants;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.server.Bootstrap;
-import net.minecraft.world.level.levelgen.DensityFunction;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
-import net.minecraft.world.level.levelgen.NoiseRouter;
-import net.minecraft.world.level.levelgen.NoiseRouterData;
+import net.minecraft.world.level.levelgen.*;
 import supercoder79.rho.RhoClass;
 import supercoder79.rho.RhoCompiler;
 import supercoder79.rho.RhoDensityFunction;
@@ -16,7 +14,11 @@ public final class TestStandalone {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
 
+        RhoCompiler.DO_COMPILE = false;
+
         NoiseRouter router = BuiltinRegistries.NOISE_GENERATOR_SETTINGS.get(NoiseGeneratorSettings.OVERWORLD).noiseRouter();
+//        RandomState randomState = RandomState.create(RegistryAccess.builtinCopy(), NoiseGeneratorSettings.OVERWORLD, 200);
+//        NoiseRouter router = randomState.router();
         DensityFunction func = router.initialDensityWithoutJaggedness();
 
         RhoClass compiled = RhoCompiler.compile(func);

@@ -2,6 +2,7 @@ package supercoder79.rho.ast;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
+import supercoder79.rho.FlatCache2;
 import supercoder79.rho.ast.common.AddNode;
 import supercoder79.rho.ast.common.ConstNode;
 import supercoder79.rho.ast.common.MulNode;
@@ -78,7 +79,10 @@ public final class McToAst {
             } else if (marker.type() == DensityFunctions.Marker.Type.CacheOnce) {
                 return new CacheOnceNode(asNode(marker.wrapped(), data));
             } else if (marker.type() == DensityFunctions.Marker.Type.FlatCache) {
-                return new CacheFlatNode(asNode(marker.wrapped(), data));
+                int idxNext = data.size();
+                data.add(new FlatCache2.Threaded());
+
+                return new CacheFlatNode(idxNext, asNode(marker.wrapped(), data));
             }
         } else if (function instanceof DensityFunctions.Noise noise) {
             int idxNext = data.size();
@@ -120,6 +124,9 @@ public final class McToAst {
         } else if (function instanceof DensityFunctions.Spline spline) {
             int idxNext = data.size();
             data.add(spline.spline());
+
+            // TODO: compile spline multipoints
+
             return new SplineNode(idxNext);
         } else if (function instanceof DensityFunctions.Constant constant) {
             return new ConstNode(constant.value());

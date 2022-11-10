@@ -26,6 +26,10 @@ public class MixinRandomState {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void injectCtor(NoiseGeneratorSettings noiseGeneratorSettings, Registry<NormalNoise.NoiseParameters> registry, long l, CallbackInfo ci) {
+        if (!RhoCompiler.DO_COMPILE) {
+            return;
+        }
+
         NoiseRouter oldRouter = this.router;
 
         this.router = new NoiseRouter(

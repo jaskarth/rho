@@ -29,7 +29,7 @@ public record Cache2dNode(Node node) implements Node {
         Node varDef = new VarAssignNode(varJ, asLong, LSTORE);
 
         Node getFieldC = new GetFieldNode(false, ctx.contextName(), idC, "J");
-        Node lcmp = new RawInsnNode(Opcodes.LCMP);
+        Node lcmp = new RawInsnNode(LCMP);
 
         Node putJ = new SetFieldNode(false, ctx.contextName(), idC, "J", new VarReferenceNode(varJ, LLOAD));
         Node varDefD = new VarAssignNode(varD, node.lower(ctx));

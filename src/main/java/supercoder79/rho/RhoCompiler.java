@@ -6,6 +6,7 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 import supercoder79.rho.ast.McToAst;
 import supercoder79.rho.ast.Node;
+import supercoder79.rho.ast.high.complex.CacheFlatNode;
 import supercoder79.rho.gen.CodegenContext;
 import supercoder79.rho.gen.DotExporter;
 import supercoder79.rho.opto.RunOptoPasses;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class RhoCompiler {
+    public static boolean DO_COMPILE = true;
 
     // TODO: handle on-demand compilation better
 
@@ -93,6 +95,8 @@ public final class RhoCompiler {
         init.visitLocalVariable("ctx", "Ljava/util/List;", null, start2, end2, 1);
         init.visitMaxs(0, 0);
 
+        buildInitMethod(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "init", "(Lnet/minecraft/world/level/ChunkPos;)V", null, null));
+
         visitor.visitEnd();
 
         // TODO: assign fields properly
@@ -120,6 +124,30 @@ public final class RhoCompiler {
         }
 
         return (RhoClass)o;
+    }
+
+    private static void buildInitMethod(CodegenContext ctx, String className, MethodVisitor init) {
+        Label start = new Label();
+        Label end = new Label();
+
+        init.visitCode();
+        init.visitLabel(start);
+
+        for (Pair<CodegenContext.MinSelfFieldRef, Integer> ref : ctx.ctorRefs) {
+            if (ref.getFirst().desc().equals(CacheFlatNode.CACHE_DESC)) {
+                init.visitVarInsn(Opcodes.ALOAD, 0);
+                init.visitFieldInsn(Opcodes.GETFIELD, className, ref.getFirst().name(), ref.getFirst().desc());
+                init.visitVarInsn(Opcodes.ALOAD, 1);
+                init.visitMethodInsn(Opcodes.INVOKEINTERFACE, "supercoder79/rho/FlatCache2", "init", "(Lnet/minecraft/world/level/ChunkPos;)V", true);
+            }
+        }
+
+        init.visitInsn(Opcodes.RETURN);
+
+        init.visitLabel(end);
+        init.visitLocalVariable("this", "L" + className + ";", null, start, end, 0);
+        init.visitLocalVariable("ctx", "Lnet/minecraft/world/level/ChunkPos;", null, start, end, 1);
+        init.visitMaxs(0, 0);
     }
 
     private static Class<?> defineClass(String className, byte[] bytes) throws ClassNotFoundException {
