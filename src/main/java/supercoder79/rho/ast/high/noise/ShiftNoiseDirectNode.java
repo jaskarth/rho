@@ -44,6 +44,6 @@ public record ShiftNoiseDirectNode(int noiseIdx, double xzScale, double yScale, 
 
     @Override
     public List<Node> children() {
-        return List.of();
+        return List.of(shiftX, shiftY, shiftZ);
     }
 }

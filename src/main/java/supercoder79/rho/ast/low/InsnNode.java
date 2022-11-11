@@ -40,4 +40,9 @@ public record InsnNode(int type, String clazz, String name, String descriptor, N
 
         return this;
     }
+
+    @Override
+    public String getDotNodeLabel() {
+        return "" + name;
+    }
 }

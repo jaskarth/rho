@@ -43,6 +43,6 @@ public record ShiftNoiseNode(int noiseIdx, Node shiftX, Node shiftY, Node shiftZ
 
     @Override
     public List<Node> children() {
-        return List.of();
+        return List.of(shiftX, shiftY, shiftZ);
     }
 }
