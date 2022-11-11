@@ -9,6 +9,8 @@ import supercoder79.rho.RhoClass;
 import supercoder79.rho.RhoCompiler;
 import supercoder79.rho.RhoDensityFunction;
 
+import java.util.ArrayList;
+
 public final class TestStandalone {
     public static void main(String[] args) {
         SharedConstants.tryDetectVersion();
@@ -23,6 +25,7 @@ public final class TestStandalone {
         DensityFunction func = router.ridges();
 
         RhoClass compiled = RhoCompiler.compile(func);
+        compiled.makeNew(new ArrayList());
         DensityFunction rfunc = new RhoDensityFunction(compiled);
 
         for (int i = 0; i < 10; i++) {

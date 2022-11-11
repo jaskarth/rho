@@ -37,19 +37,27 @@ public class MixinRandomState {
                 oldRouter.fluidLevelFloodednessNoise(),
                 oldRouter.fluidLevelSpreadNoise(),
                 oldRouter.lavaNoise(),
-                oldRouter.temperature(),
-                oldRouter.vegetation(),
-                oldRouter.continents(),
-                oldRouter.erosion(),
                 new RhoDensityFunction(
-                        RhoCompiler.compile(oldRouter.depth())
+                        RhoCompiler.compile("Temp", oldRouter.temperature())
                 ),
                 new RhoDensityFunction(
-                        RhoCompiler.compile(oldRouter.ridges())
+                        RhoCompiler.compile("Vegetation", oldRouter.vegetation())
+                ),
+                new RhoDensityFunction(
+                        RhoCompiler.compile("Continents", oldRouter.continents())
+                ),
+                new RhoDensityFunction(
+                        RhoCompiler.compile("Erosion", oldRouter.erosion())
+                ),
+                new RhoDensityFunction(
+                        RhoCompiler.compile("Depth", oldRouter.depth())
+                ),
+                new RhoDensityFunction(
+                        RhoCompiler.compile("Ridges", oldRouter.ridges())
                 ),
                 // Initial density
                 new RhoDensityFunction(
-                        RhoCompiler.compile(oldRouter.initialDensityWithoutJaggedness())
+                        RhoCompiler.compile("InitialDensity", oldRouter.initialDensityWithoutJaggedness())
                 ),
                 oldRouter.finalDensity(),
                 oldRouter.veinToggle(),

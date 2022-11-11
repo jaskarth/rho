@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AnalyzerAdapter;
+import org.objectweb.asm.util.CheckClassAdapter;
 import supercoder79.rho.ast.McToAst;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.high.complex.CacheFlatNode;
@@ -22,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class RhoCompiler {
-    public static boolean DO_COMPILE = true;
+    public static boolean DO_COMPILE = false;
 
     // TODO: handle on-demand compilation better
 
@@ -31,10 +32,10 @@ public final class RhoCompiler {
     private static int compileCount = 0;
 
     public static synchronized RhoClass compile(DensityFunction function) {
-        return compile("RhoCompiled_" + compileCount, function);
+        return compile("", function);
     }
 
-    public static synchronized RhoClass compile(String name, DensityFunction function) {
+    public static synchronized RhoClass compile(String suffix, DensityFunction function) {
         compileCount++;
         List<Object> data = new ArrayList<>();
 
@@ -44,7 +45,9 @@ public final class RhoCompiler {
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS
                 | ClassWriter.COMPUTE_FRAMES
         );
-        ClassVisitor visitor = writer;//new CheckClassAdapter(writer);
+        ClassVisitor visitor = writer;//new CheckClassAdapter(writer); //
+
+        String name = ("RhoCompiled_" + compileCount) + (suffix.isEmpty() ? "" : "_") + suffix;
 
         visitor.visit(61, Opcodes.ACC_PUBLIC, name, null, "java/lang/Object", new String[]{"supercoder79/rho/RhoClass"});
 
@@ -71,18 +74,23 @@ public final class RhoCompiler {
 
         method.visitLabel(end);
 
-        method.visitMaxs(0, 0);
-
         ctx.applyFieldGens();
+        visitor.visitField(Opcodes.ACC_PRIVATE, "list", "Ljava/util/List;", null, null);
+
         ctx.applyLocals(start, end);
+
+        method.visitMaxs(0, 0);
 
         Label start2 = new Label();
         Label end2 = new Label();
         MethodVisitor init = visitor.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "(Ljava/util/List;)V", null, null);
         init.visitCode();
         init.visitLabel(start2);
+
+        // super()
         init.visitVarInsn(Opcodes.ALOAD, 0);
         init.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/Object", "<init>", "()V", false);
+
         for (Pair<CodegenContext.MinSelfFieldRef, Integer> ref : ctx.ctorRefs) {
             init.visitVarInsn(Opcodes.ALOAD, 0);
             init.visitVarInsn(Opcodes.ALOAD, 1);
@@ -92,6 +100,10 @@ public final class RhoCompiler {
             init.visitFieldInsn(Opcodes.PUTFIELD, name, ref.getFirst().name(), ref.getFirst().desc());
         }
 
+        init.visitVarInsn(Opcodes.ALOAD, 0);
+        init.visitVarInsn(Opcodes.ALOAD, 1);
+        init.visitFieldInsn(Opcodes.PUTFIELD, name, "list", "Ljava/util/List;");
+
         init.visitInsn(Opcodes.RETURN);
 
         init.visitLabel(end2);
@@ -100,6 +112,8 @@ public final class RhoCompiler {
         init.visitMaxs(0, 0);
 
         buildInitMethod(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "init", "(Lnet/minecraft/world/level/ChunkPos;)V", null, null));
+        buildGetArgs(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "getArgs", "()Ljava/util/List;", null, null));
+        buildMakeNew(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "makeNew", "(Ljava/util/List;)Lsupercoder79/rho/RhoClass;", null, null));
 
         visitor.visitEnd();
 
@@ -153,6 +167,43 @@ public final class RhoCompiler {
         init.visitLabel(end);
         init.visitLocalVariable("this", "L" + className + ";", null, start, end, 0);
         init.visitLocalVariable("ctx", "Lnet/minecraft/world/level/ChunkPos;", null, start, end, 1);
+        init.visitMaxs(0, 0);
+    }
+
+    private static void buildGetArgs(CodegenContext ctx, String className, MethodVisitor init) {
+        Label start = new Label();
+        Label end = new Label();
+
+        init.visitCode();
+        init.visitLabel(start);
+
+        init.visitVarInsn(Opcodes.ALOAD, 0);
+        init.visitFieldInsn(Opcodes.GETFIELD, className, "list", "Ljava/util/List;");
+        init.visitInsn(Opcodes.ARETURN);
+
+        init.visitLabel(end);
+
+        init.visitLocalVariable("this", "L" + className + ";", null, start, end, 0);
+        init.visitMaxs(0, 0);
+    }
+
+    private static void buildMakeNew(CodegenContext ctx, String className, MethodVisitor init) {
+        Label start = new Label();
+        Label end = new Label();
+
+        init.visitCode();
+        init.visitLabel(start);
+
+        init.visitTypeInsn(Opcodes.NEW, className);
+        init.visitInsn(Opcodes.DUP);
+        init.visitVarInsn(Opcodes.ALOAD, 1);
+        init.visitMethodInsn(Opcodes.INVOKESPECIAL, className, "<init>", "(Ljava/util/List;)V", false);
+        init.visitInsn(Opcodes.ARETURN);
+
+        init.visitLabel(end);
+
+        init.visitLocalVariable("this", "L" + className + ";", null, start, end, 0);
+        init.visitLocalVariable("ctx", "Ljava/util/List;", null, start, end, 1);
         init.visitMaxs(0, 0);
     }
 
