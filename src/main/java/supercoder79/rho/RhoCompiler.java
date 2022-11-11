@@ -11,6 +11,7 @@ import supercoder79.rho.gen.CodegenContext;
 import supercoder79.rho.gen.DotExporter;
 import supercoder79.rho.opto.RunOptoPasses;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -106,7 +107,9 @@ public final class RhoCompiler {
 
         byte[] bytes = writer.toByteArray();
 
-        try (FileOutputStream fos = new FileOutputStream(Paths.get(".", "compiled", name + ".class").toFile())) {
+        File file = Paths.get(".", "compiled", name + ".class").toFile();
+        file.getParentFile().mkdirs();
+        try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(bytes);
             System.out.println("!!");
         } catch (Exception e) {

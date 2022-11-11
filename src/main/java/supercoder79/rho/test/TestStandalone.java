@@ -19,7 +19,8 @@ public final class TestStandalone {
         NoiseRouter router = BuiltinRegistries.NOISE_GENERATOR_SETTINGS.get(NoiseGeneratorSettings.OVERWORLD).noiseRouter();
 //        RandomState randomState = RandomState.create(RegistryAccess.builtinCopy(), NoiseGeneratorSettings.OVERWORLD, 200);
 //        NoiseRouter router = randomState.router();
-        DensityFunction func = router.initialDensityWithoutJaggedness();
+//        System.out.println(router.ridges());
+        DensityFunction func = router.ridges();
 
         RhoClass compiled = RhoCompiler.compile(func);
         DensityFunction rfunc = new RhoDensityFunction(compiled);

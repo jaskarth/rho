@@ -7,7 +7,7 @@ import java.util.List;
 
 public final class RunOptoPasses {
     public static Node optimizeAst(CodegenContext ctx, Node node, boolean optimize) {
-        List<OptoPass> passes = optimize ? OptoPasses.COMPILE_OPTIMIZETEST : OptoPasses.COMPILE_DONTOPTIMIZE;
+        List<OptoPass> passes = optimize ? OptoPasses.COMPILE_OPTIMIZEFULLY : OptoPasses.COMPILE_DONTOPTIMIZE;
 
         for (OptoPass pass : passes) {
             node = pass.run(ctx, node);
