@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class RhoCompiler {
-    public static boolean DO_COMPILE = false;
+    public static boolean DO_COMPILE = true;
 
     // TODO: handle on-demand compilation better
 
