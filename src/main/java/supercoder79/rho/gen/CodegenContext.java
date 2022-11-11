@@ -2,6 +2,7 @@ package supercoder79.rho.gen;
 
 import com.mojang.datafixers.util.Pair;
 import org.objectweb.asm.*;
+import supercoder79.rho.ClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.Var;
 import supercoder79.rho.ast.common.ReturnNode;
@@ -12,34 +13,19 @@ import java.util.function.Consumer;
 public class CodegenContext implements Opcodes {
     private final String name;
     private final ClassVisitor clazz;
-    private MethodVisitor method;
+    private final MethodVisitor method;
     private final List<Consumer<ClassVisitor>> fieldGens = new ArrayList<>();
     private final Set<Pair<Var, String>> vars = new HashSet<>();
+    // 0: this
+    // 1: ctx
     private int varIndex = 2;
     private int fieldIndex = 2;
     public final List<Pair<MinSelfFieldRef, Integer>> ctorRefs = new ArrayList<>();
-    private final Deque<Pair<Node, String>> methodStack = new LinkedList<>();
-    private int methodIndex = 0;
 
     public CodegenContext(String name, ClassVisitor clazz, MethodVisitor method) {
         this.name = name;
         this.clazz = clazz;
         this.method = method;
-    }
-
-    public void generateNextMethods() {
-        // FIXME: needs a deque of the whole context
-        // Move context into inner class?
-
-
-        while (!this.methodStack.isEmpty()) {
-            Pair<Node, String> pair = this.methodStack.pop();
-            MethodVisitor methodVisitor = clazz.visitMethod(ACC_PUBLIC, pair.getSecond(), "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D", null, null);
-            this.method = methodVisitor;
-
-            // TODO: need to call node optimizer
-            pair.getFirst().codegen(this, methodVisitor);
-        }
     }
 
     public void addFieldGen(Consumer<ClassVisitor> gen) {
@@ -59,7 +45,7 @@ public class CodegenContext implements Opcodes {
     }
 
     public void applyLocals(Label start, Label end) {
-        this.method.visitLocalVariable("this", "L" + contextName() + ";", null, start, end, 0);
+        this.method.visitLocalVariable("this", ClassRefs.descriptor(contextName()), null, start, end, 0);
         this.method.visitLocalVariable("ctx", "Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;", null, start, end, 1);
 
         for (Pair<Var, String> var : this.vars) {
@@ -91,14 +77,6 @@ public class CodegenContext implements Opcodes {
         if (asDouble) {
             method.visitInsn(I2D);
         }
-    }
-
-    // Return: method name
-    public String forkMethodwise(Node body) {
-        String methodName = "method" + ++methodIndex;
-        methodStack.add(Pair.of(new ReturnNode(body), methodName));
-
-        return methodName;
     }
 
     public String contextName() {

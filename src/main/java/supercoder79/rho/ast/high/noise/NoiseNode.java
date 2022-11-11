@@ -1,6 +1,7 @@
 package supercoder79.rho.ast.high.noise;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
+import supercoder79.rho.ClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.common.ConstNode;
 import supercoder79.rho.ast.common.MulNode;
@@ -25,7 +26,9 @@ public record NoiseNode(int noiseIdx, double xzScale, double yScale) implements 
         Node y = new MulNode(new ContextBlockInsnNode(CodegenContext.Type.Y), new ConstNode(yScale));
         Node z = new MulNode(new ContextBlockInsnNode(CodegenContext.Type.Z), new ConstNode(xzScale));
 
-        return new InsnNode(INVOKEVIRTUAL, "net/minecraft/world/level/levelgen/synth/NormalNoise", "getValue", "(DDD)D", getfield, x, y, z);
+        return new InsnNode(INVOKEVIRTUAL, "net/minecraft/world/level/levelgen/synth/NormalNoise", "getValue",
+                ClassRefs.methodDescriptor(ClassRefs.DOUBLE, ClassRefs.DOUBLE, ClassRefs.DOUBLE, ClassRefs.DOUBLE),
+                getfield, x, y, z);
     }
 
     @Override

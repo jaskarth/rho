@@ -1,5 +1,6 @@
 package supercoder79.rho.ast.high;
 
+import supercoder79.rho.ClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.low.InsnNode;
 import supercoder79.rho.gen.CodegenContext;
@@ -10,7 +11,7 @@ public record AbsNode(Node inner) implements Node {
     @Override
     public Node lower(CodegenContext ctx) {
         // Math.abs(node)
-        return new InsnNode(INVOKESTATIC, "java/lang/Math", "abs", "(D)D", inner.lower(ctx));
+        return new InsnNode(INVOKESTATIC, ClassRefs.MATH, "abs", ClassRefs.methodDescriptor(ClassRefs.DOUBLE, ClassRefs.DOUBLE), inner.lower(ctx));
     }
 
     @Override
