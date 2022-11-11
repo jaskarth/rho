@@ -16,6 +16,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,10 @@ public final class RhoCompiler {
     private static int compileCount = 0;
 
     public static synchronized RhoClass compile(DensityFunction function) {
+        return compile("RhoCompiled_" + compileCount, function);
+    }
+
+    public static synchronized RhoClass compile(String name, DensityFunction function) {
         compileCount++;
         List<Object> data = new ArrayList<>();
 
@@ -39,8 +44,6 @@ public final class RhoCompiler {
                 | ClassWriter.COMPUTE_FRAMES
         );
         ClassVisitor visitor = writer;//new CheckClassAdapter(writer);
-
-        String name = "RhoCompiled_" + compileCount;
 
         visitor.visit(61, Opcodes.ACC_PUBLIC, name, null, "java/lang/Object", new String[]{"supercoder79/rho/RhoClass"});
 
@@ -103,7 +106,7 @@ public final class RhoCompiler {
 
         byte[] bytes = writer.toByteArray();
 
-        try (FileOutputStream fos = new FileOutputStream(name + ".class")) {
+        try (FileOutputStream fos = new FileOutputStream(Paths.get(".", "compiled", name + ".class").toFile())) {
             fos.write(bytes);
             System.out.println("!!");
         } catch (Exception e) {

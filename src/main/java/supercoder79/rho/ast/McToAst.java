@@ -3,6 +3,7 @@ package supercoder79.rho.ast;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import supercoder79.rho.FlatCache2;
+import supercoder79.rho.SingleCache;
 import supercoder79.rho.ast.common.AddNode;
 import supercoder79.rho.ast.common.ConstNode;
 import supercoder79.rho.ast.common.MulNode;
@@ -73,7 +74,10 @@ public final class McToAst {
             if (marker.type() == DensityFunctions.Marker.Type.Interpolated) {
                 return new InterpolationNode(asNode(marker.wrapped(), data));
             } else if (marker.type() == DensityFunctions.Marker.Type.Cache2D) {
-                return new Cache2dNode(asNode(marker.wrapped(), data));
+                int idxNext = data.size();
+                data.add(new SingleCache.Threaded());
+
+                return new Cache2dNode(idxNext, asNode(marker.wrapped(), data));
             } else if (marker.type() == DensityFunctions.Marker.Type.CacheAllInCell) {
                 return new CacheCellNode(asNode(marker.wrapped(), data));
             } else if (marker.type() == DensityFunctions.Marker.Type.CacheOnce) {

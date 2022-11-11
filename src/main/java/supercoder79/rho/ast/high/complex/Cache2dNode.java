@@ -8,19 +8,18 @@ import supercoder79.rho.gen.CodegenContext;
 
 import java.util.List;
 
-public record Cache2dNode(Node node) implements Node {
+public record Cache2dNode(int index, Node node) implements Node {
+    public static final String CACHE_DESC = "Lsupercoder79/rho/SingleCache;";
+    public static final String CACHE_NAME = "supercoder79/rho/SingleCache";
+
     @Override
     public Node lower(CodegenContext ctx) {
-        Var varD = ctx.getNextVar();
-        ctx.addLocalVar(varD);
-
         Var varJ = ctx.getNextVar();
         ctx.addLocalVar(varJ, "J");
-        
-        String idC = ctx.getNextFieldId("cache");
-        String idV = ctx.getNextFieldId("val");
-        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, idC, "J", null, null));
-        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, idV, "D", null, null));
+
+        String id = ctx.getNextFieldId("cache2d_");
+        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, CACHE_DESC, null, null));
+        ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, CACHE_DESC), index);
 
         Node asLong = new InsnNode(
                 INVOKESTATIC, "net/minecraft/world/level/ChunkPos", "asLong", "(II)J",
@@ -28,25 +27,27 @@ public record Cache2dNode(Node node) implements Node {
 
         Node varDef = new VarAssignNode(varJ, asLong, LSTORE);
 
-        Node getFieldC = new GetFieldNode(false, ctx.contextName(), idC, "J");
-        Node lcmp = new RawInsnNode(LCMP);
+        // TODO: dup instead of multiple getfield?
+        Node fieldCache = new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC);
+        Node isInCache = new InsnNode(INVOKEINTERFACE, CACHE_NAME, "isInCache", "(J)Z", new VarReferenceNode(varJ, LLOAD));
 
-        Node putJ = new SetFieldNode(false, ctx.contextName(), idC, "J", new VarReferenceNode(varJ, LLOAD));
-        Node varDefD = new VarAssignNode(varD, node.lower(ctx));
-        Node putD = new SetFieldNode(false, ctx.contextName(), idV, "D", new VarReferenceNode(varD));
-        Node refD = new VarReferenceNode(varD);
-
-
-        return new IfElseNode(new SequenceNode(varDef, new VarReferenceNode(varJ, LLOAD), getFieldC, lcmp), Opcodes.IFEQ,
-                new GetFieldNode(false, ctx.contextName(), idV, "D"),
-                new SequenceNode(putJ, varDefD, putD, refD)
-                );
+        return new IfElseNode(new SequenceNode(varDef, fieldCache, isInCache), IFEQ,
+                // TODO: why is this inverted?
+                new SequenceNode(
+                        new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC),
+                        new InsnNode(INVOKEINTERFACE, CACHE_NAME, "getAndPutInCache", "(JD)D", new VarReferenceNode(varJ, LLOAD), node.lower(ctx))
+                ),
+                new SequenceNode(
+                        new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC),
+                        new InsnNode(INVOKEINTERFACE, CACHE_NAME, "getFromCache", "(J)D", new VarReferenceNode(varJ, LLOAD))
+                )
+        );
     }
 
     @Override
     public Node replaceNode(Node old, Node newNode) {
         if (old == node) {
-            return new Cache2dNode(newNode);
+            return new Cache2dNode(index, newNode);
         }
 
         return this;

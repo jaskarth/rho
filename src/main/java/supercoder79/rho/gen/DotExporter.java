@@ -59,7 +59,7 @@ public final class DotExporter {
         builder.append("}");
 
         try {
-            Files.writeString(Path.of(name + ".dot"), builder.toString());
+            Files.writeString(Path.of("dot", name + ".dot"), builder.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
