@@ -6,8 +6,8 @@ public class ClassRefs {
     public static final String DOUBLE = "D";
 
     public static final String LIST = "java/util/List";
-    public static final String OBJECT = "java/util/Object";
-    public static final String MATH = "java/util/Math";
+    public static final String OBJECT = "java/lang/Object";
+    public static final String MATH = "java/lang/Math";
 
     public static final String RHO_CLASS = "supercoder79/rho/RhoClass";
 
