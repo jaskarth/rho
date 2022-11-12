@@ -1,13 +1,10 @@
 package supercoder79.rho.ast.high.noise;
 
-import net.minecraft.world.level.levelgen.DensityFunction;
 import supercoder79.rho.ast.Node;
-import supercoder79.rho.ast.common.AddNode;
 import supercoder79.rho.ast.common.ConstNode;
 import supercoder79.rho.ast.common.MulNode;
-import supercoder79.rho.ast.low.ContextBlockInsnNode;
 import supercoder79.rho.ast.low.GetFieldNode;
-import supercoder79.rho.ast.low.InsnNode;
+import supercoder79.rho.ast.low.InvokeNode;
 import supercoder79.rho.gen.CodegenContext;
 
 import java.util.List;
@@ -25,7 +22,7 @@ public record ShiftNoiseNode(int noiseIdx, Node shiftX, Node shiftY, Node shiftZ
         Node y = new MulNode(shiftY, new ConstNode(0.25)).lower(ctx);
         Node z = new MulNode(shiftZ, new ConstNode(0.25)).lower(ctx);
 
-        return new MulNode(new InsnNode(INVOKEVIRTUAL, "net/minecraft/world/level/levelgen/synth/NormalNoise", "getValue", "(DDD)D", getfield, x, y, z), new ConstNode(4.0));
+        return new MulNode(new InvokeNode(INVOKEVIRTUAL, "net/minecraft/world/level/levelgen/synth/NormalNoise", "getValue", "(DDD)D", getfield, x, y, z), new ConstNode(4.0));
     }
 
     @Override

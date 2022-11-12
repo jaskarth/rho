@@ -6,7 +6,7 @@ import supercoder79.rho.gen.CodegenContext;
 
 import java.util.List;
 
-public record InsnNode(int type, String clazz, String name, String descriptor, Node... args) implements Node {
+public record InvokeNode(int type, String clazz, String name, String descriptor, Node... args) implements Node {
 
     @Override
     public boolean isLow() {
@@ -34,7 +34,7 @@ public record InsnNode(int type, String clazz, String name, String descriptor, N
             if (nd == old) {
                 Node[] clone = args.clone();
                 clone[i] = newNode;
-                return new InsnNode(type, clazz, name, descriptor, clone);
+                return new InvokeNode(type, clazz, name, descriptor, clone);
             }
         }
 

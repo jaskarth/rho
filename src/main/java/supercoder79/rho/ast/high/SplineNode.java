@@ -1,8 +1,5 @@
 package supercoder79.rho.ast.high;
 
-import net.minecraft.util.CubicSpline;
-import net.minecraft.world.level.levelgen.DensityFunctions;
-import org.objectweb.asm.Opcodes;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.Var;
 import supercoder79.rho.ast.low.*;
@@ -23,10 +20,10 @@ public record SplineNode(int idx) implements Node {
         Node newNode = new NewNode("net/minecraft/world/level/levelgen/DensityFunctions$Spline$Point");
         Node dup = new RawInsnNode(DUP);
         Node varReference = new VarReferenceNode(new Var(1), ALOAD);
-        Node init = new InsnNode(INVOKESPECIAL, "net/minecraft/world/level/levelgen/DensityFunctions$Spline$Point", "<init>",
+        Node init = new InvokeNode(INVOKESPECIAL, "net/minecraft/world/level/levelgen/DensityFunctions$Spline$Point", "<init>",
                 "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)V", varReference);
 
-        Node apply = new InsnNode(INVOKEINTERFACE, "net/minecraft/util/CubicSpline", "apply", "(Ljava/lang/Object;)F");
+        Node apply = new InvokeNode(INVOKEINTERFACE, "net/minecraft/util/CubicSpline", "apply", "(Ljava/lang/Object;)F");
 
 //        throw new RuntimeException();
 

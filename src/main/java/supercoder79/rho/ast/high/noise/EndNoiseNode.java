@@ -4,7 +4,7 @@ import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.common.*;
 import supercoder79.rho.ast.low.ContextBlockInsnNode;
 import supercoder79.rho.ast.low.GetFieldNode;
-import supercoder79.rho.ast.low.InsnNode;
+import supercoder79.rho.ast.low.InvokeNode;
 import supercoder79.rho.gen.CodegenContext;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public record EndNoiseNode(int noiseIdx) implements Node {
         Node x = new IDivNode(new ContextBlockInsnNode(CodegenContext.Type.X, false), new IConstNode(8));
         Node z = new IDivNode(new ContextBlockInsnNode(CodegenContext.Type.Z, false), new IConstNode(8));
 
-        InsnNode insn = new InsnNode(INVOKESTATIC,
+        InvokeNode insn = new InvokeNode(INVOKESTATIC,
                 "supercoder79/rho/DensitySupport", "endNoise", "(Lnet/minecraft/world/level/levelgen/synth/SimplexNoise;II)D",
                 getfield, x, z);
 
