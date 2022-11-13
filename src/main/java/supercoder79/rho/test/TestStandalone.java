@@ -22,7 +22,7 @@ public final class TestStandalone {
 //        RandomState randomState = RandomState.create(RegistryAccess.builtinCopy(), NoiseGeneratorSettings.OVERWORLD, 200);
 //        NoiseRouter router = randomState.router();
 //        System.out.println(router.ridges());
-        DensityFunction func = router.continents();
+        DensityFunction func = router.barrierNoise();
 
         RhoClass compiled = RhoCompiler.compile(func);
         compiled.makeNew(new ArrayList());

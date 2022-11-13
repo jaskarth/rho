@@ -6,6 +6,7 @@
   "mixins": [
     "ImposterProtoChunkAccessor",
     "LevelChunkSectionAccessor",
+    "MixinAquifer",
     "MixinDensityFunctions",
     "MixinNoiseChunk",
     "MixinNoiseChunkGenerator",

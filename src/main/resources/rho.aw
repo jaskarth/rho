@@ -25,4 +25,7 @@ accessible class net/minecraft/world/level/levelgen/DensityFunctions$EndIslandDe
 
 accessible field net/minecraft/world/level/levelgen/DensityFunctions$EndIslandDensityFunction islandNoise Lnet/minecraft/world/level/levelgen/synth/SimplexNoise;
 
+accessible field net/minecraft/world/level/levelgen/Aquifer$FluidStatus fluidLevel I
+accessible field net/minecraft/world/level/levelgen/Aquifer$FluidStatus fluidType Lnet/minecraft/world/level/block/state/BlockState;
+
 accessible method net/minecraft/world/level/levelgen/NoiseChunk$NoiseInterpolator <init> (Lnet/minecraft/world/level/levelgen/NoiseChunk;Lnet/minecraft/world/level/levelgen/DensityFunction;)V

@@ -56,7 +56,6 @@ public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
         ChunkPos chunkPos = chunk.getPos();
         int bX = QuartPos.fromBlock(chunkPos.getMinBlockX());
         int bZ = QuartPos.fromBlock(chunkPos.getMinBlockZ());
-        LevelHeightAccessor height = chunk.getHeightAccessorForGeneration();
 
         LevelChunkSection[] sections = chunk.getSections();
         SectionData[] data = new SectionData[sections.length];
