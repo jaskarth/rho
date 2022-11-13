@@ -161,7 +161,7 @@ public final class RhoCompiler {
                 init.visitVarInsn(Opcodes.ALOAD, 0);
                 init.visitFieldInsn(Opcodes.GETFIELD, className, ref.getFirst().name(), ref.getFirst().desc());
                 init.visitVarInsn(Opcodes.ALOAD, 1);
-                init.visitMethodInsn(Opcodes.INVOKEINTERFACE, CacheFlatNode.CACHE_NAME, "init", "(Lnet/minecraft/world/level/ChunkPos;)V", true);
+                init.visitMethodInsn(Opcodes.INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "init", "(Lnet/minecraft/world/level/ChunkPos;)V", true);
             }
         }
 

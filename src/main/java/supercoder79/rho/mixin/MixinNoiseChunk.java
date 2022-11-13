@@ -20,7 +20,7 @@ public class MixinNoiseChunk {
     @Shadow @Final
     int firstNoiseZ;
 
-    @Inject(method = "wrap", at = @At("HEAD"))
+    @Inject(method = "wrapNew", at = @At("HEAD"))
     private void setupState(DensityFunction func, CallbackInfoReturnable<DensityFunction> cir) {
         if (func instanceof RhoDensityFunction rho) {
             rho.rho().init(new ChunkPos(this.firstNoiseX << 4, this.firstNoiseZ << 4));

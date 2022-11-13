@@ -1,5 +1,6 @@
 package supercoder79.rho.ast.high.complex;
 
+import supercoder79.rho.ClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.Var;
 import supercoder79.rho.ast.low.*;
@@ -8,14 +9,13 @@ import supercoder79.rho.gen.CodegenContext;
 import java.util.List;
 
 public record CacheFlatNode(int index, Node node) implements Node {
-    public static final String CACHE_DESC = "Lsupercoder79/rho/FlatCache2;";
-    public static final String CACHE_NAME = "supercoder79/rho/FlatCache2";
+    public static final String CACHE_DESC = ClassRefs.descriptor(ClassRefs.FLAT_CACHE_2);
 
     @Override
     public Node lower(CodegenContext ctx) {
 
         Var varJ = ctx.getNextVar();
-        ctx.addLocalVar(varJ, "J");
+        ctx.addLocalVar(varJ, ClassRefs.LONG);
 
         String id = ctx.getNextFieldId("flatCache2_");
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, CACHE_DESC, null, null));
@@ -29,17 +29,17 @@ public record CacheFlatNode(int index, Node node) implements Node {
 
         // TODO: dup instead of multiple getfield?
         Node fieldCache = new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC);
-        Node isInCache = new InvokeNode(INVOKEINTERFACE, CACHE_NAME, "isInCache", "(J)Z", new VarReferenceNode(varJ, LLOAD));
+        Node isInCache = new InvokeNode(INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "isInCache", "(J)Z", new VarReferenceNode(varJ, LLOAD));
 
         return new IfElseNode(new SequenceNode(varDef, fieldCache, isInCache), IFEQ,
                 // TODO: why is this inverted?
                 new SequenceNode(
                         new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC),
-                        new InvokeNode(INVOKEINTERFACE, CACHE_NAME, "getAndPutInCache", "(JD)D", new VarReferenceNode(varJ, LLOAD), node.lower(ctx))
+                        new InvokeNode(INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "getAndPutInCache", "(JD)D", new VarReferenceNode(varJ, LLOAD), node.lower(ctx))
                 ),
                 new SequenceNode(
                         new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC),
-                        new InvokeNode(INVOKEINTERFACE, CACHE_NAME, "getFromCache", "(J)D", new VarReferenceNode(varJ, LLOAD))
+                        new InvokeNode(INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "getFromCache", "(J)D", new VarReferenceNode(varJ, LLOAD))
                 )
         );
 //        throw new RuntimeException();

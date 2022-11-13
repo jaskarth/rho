@@ -1,5 +1,6 @@
 package supercoder79.rho.ast.high.complex;
 
+import supercoder79.rho.ClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.Var;
 import supercoder79.rho.ast.low.*;
@@ -14,7 +15,7 @@ public record Cache2dNode(int index, Node node) implements Node {
     @Override
     public Node lower(CodegenContext ctx) {
         Var varJ = ctx.getNextVar();
-        ctx.addLocalVar(varJ, "J");
+        ctx.addLocalVar(varJ, ClassRefs.LONG);
 
         String id = ctx.getNextFieldId("cache2d_");
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, CACHE_DESC, null, null));
