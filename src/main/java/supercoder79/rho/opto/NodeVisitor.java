@@ -39,12 +39,22 @@ public final class NodeVisitor {
             Node newNode = action.apply(child);
 
             if (child != newNode) {
-                return new ReplaceRes(1, node.replaceNode(child, newNode));
+                Node replaced = node.replaceNode(child, newNode);
+                if (replaced == node) {
+                    throw new IllegalStateException("Node " + node + " did not replace child " + child + " with " + newNode);
+                }
+
+                return new ReplaceRes(1, replaced);
             }
 
             ReplaceRes res = visitNodeReplacing(child, action);
             if (res.type == 1) {
-                return new ReplaceRes(1, node.replaceNode(child, res.node));
+                Node replaced = node.replaceNode(child, res.node);
+                if (replaced == node) {
+                    throw new IllegalStateException("Node " + node + " did not replace child " + child + " with " + res.node);
+                }
+
+                return new ReplaceRes(1, replaced);
             }
         }
 

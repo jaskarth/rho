@@ -26,6 +26,10 @@ public record VarAssignNode(Var var, Node value, int type) implements Node {
 
     @Override
     public Node replaceNode(Node old, Node newNode) {
+        if (value == old) {
+            return new VarAssignNode(var, newNode, type);
+        }
+
         return this;
     }
 
