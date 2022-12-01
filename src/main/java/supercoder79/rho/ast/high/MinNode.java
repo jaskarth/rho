@@ -10,7 +10,7 @@ import java.util.List;
 public record MinNode(Node left, Node right) implements Node {
     @Override
     public Node lower(CodegenContext ctx) {
-        return new InvokeNode(INVOKESTATIC, ClassRefs.MATH, "min", ClassRefs.methodDescriptor(ClassRefs.DOUBLE, ClassRefs.DOUBLE), left.lower(ctx), right.lower(ctx));
+        return new InvokeNode(INVOKESTATIC, ClassRefs.MATH, "min", ClassRefs.methodDescriptor(ClassRefs.DOUBLE, ClassRefs.DOUBLE, ClassRefs.DOUBLE), left.lower(ctx), right.lower(ctx));
     }
 
     @Override
