@@ -14,6 +14,7 @@
     "NoiseChunkAccessor"
   ],
   "client": [
+    "client.MixinGameRenderer"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class RhoCompiler {
+    public static boolean isCompilingCurrently = false;
+    public static String currentName = "";
+    public static String currentStatus = "";
     public static boolean DO_COMPILE = true;
 
     // TODO: handle on-demand compilation better
@@ -32,8 +35,13 @@ public final class RhoCompiler {
 
     public static synchronized RhoClass compile(String suffix, DensityFunction function) {
         compileCount++;
+        isCompilingCurrently = true;
+        // TODO: include dimension
+        currentName = suffix;
+
         List<Object> data = new ArrayList<>();
 
+        currentStatus = "Parse";
         Node node = McToAst.convertToAst(function, data);
 
         DotExporter.toDotFile(node, "Initial");
@@ -69,6 +77,7 @@ public final class RhoCompiler {
 
         method.visitLabel(start);
 
+        currentStatus = "Write Code";
         node.codegen(ctx, method);
 
         method.visitLabel(end);
@@ -82,6 +91,8 @@ public final class RhoCompiler {
 
         method.visitEnd();
 
+        currentStatus = "Finalize";
+
         buildConstructor(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ClassRefs.methodDescriptor(ClassRefs.VOID, ClassRefs.LIST), null, null));
 
         buildInitMethod(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "init", "(Lnet/minecraft/world/level/ChunkPos;)V", null, null));
@@ -89,6 +100,8 @@ public final class RhoCompiler {
         buildMakeNew(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "makeNew", ClassRefs.methodDescriptor(ClassRefs.RHO_CLASS, ClassRefs.LIST), null, null));
 
         visitor.visitEnd();
+
+        currentStatus = "Load";
 
         // TODO: assign fields properly
 
@@ -115,6 +128,11 @@ public final class RhoCompiler {
                  NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
+
+        isCompilingCurrently = false;
+
+        // Debugging to dump a single density function at a time
+//        if (true) throw new RuntimeException();
 
         return (RhoClass)o;
     }
