@@ -23,6 +23,11 @@ accessible class net/minecraft/world/level/levelgen/DensityFunctions$BlendAlpha
 accessible class net/minecraft/world/level/levelgen/DensityFunctions$BlendOffset
 accessible class net/minecraft/world/level/levelgen/DensityFunctions$EndIslandDensityFunction
 
+accessible class net/minecraft/world/level/biome/Climate$RTree
+accessible class net/minecraft/world/level/biome/Climate$RTree$Node
+accessible class net/minecraft/world/level/biome/Climate$RTree$SubTree
+accessible class net/minecraft/world/level/biome/Climate$RTree$Leaf
+
 accessible field net/minecraft/world/level/levelgen/DensityFunctions$EndIslandDensityFunction islandNoise Lnet/minecraft/world/level/levelgen/synth/SimplexNoise;
 
 accessible field net/minecraft/world/level/levelgen/Aquifer$FluidStatus fluidLevel I

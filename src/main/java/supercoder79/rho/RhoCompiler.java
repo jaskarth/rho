@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AnalyzerAdapter;
-import org.objectweb.asm.util.CheckClassAdapter;
 import supercoder79.rho.ast.McToAst;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.high.complex.CacheFlatNode;
@@ -12,11 +11,7 @@ import supercoder79.rho.gen.CodegenContext;
 import supercoder79.rho.gen.DotExporter;
 import supercoder79.rho.opto.RunOptoPasses;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -40,6 +35,7 @@ public final class RhoCompiler {
         List<Object> data = new ArrayList<>();
 
         Node node = McToAst.convertToAst(function, data);
+
         DotExporter.toDotFile(node, "Initial");
 
         ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS
@@ -54,10 +50,13 @@ public final class RhoCompiler {
         // FIXME: cleanup
 
         MethodVisitor method =
+//                new FlowAnalysisAdapter(
+//                        name, Opcodes.ACC_PUBLIC, "compute", "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D",
                 new AnalyzerAdapter(
                         name, Opcodes.ACC_PUBLIC, "compute", "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D",
                         visitor.visitMethod(Opcodes.ACC_PUBLIC, "compute", "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D", null, null)
-                );
+//                )
+    );
 
         CodegenContext ctx = new CodegenContext(name, visitor, method);
 
@@ -80,6 +79,8 @@ public final class RhoCompiler {
         ctx.applyLocals(start, end);
 
         method.visitMaxs(0, 0);
+
+        method.visitEnd();
 
         buildConstructor(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ClassRefs.methodDescriptor(ClassRefs.VOID, ClassRefs.LIST), null, null));
 

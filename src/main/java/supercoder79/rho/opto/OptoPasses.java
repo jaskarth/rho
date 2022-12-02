@@ -7,6 +7,8 @@ import java.util.List;
 public final class OptoPasses {
     public static final List<OptoPass> COMPILE_DONTOPTIMIZE = List.of(
             of(NormalizeTree::normalize, "NormTree"),
+//            of(GlobalNodeNumbering::numberNodes, "NumberNodes"),
+//            of(DebugEliminateNodes::eliminateTree, "ElimTree"),
             of(LowerAst::lower, "Lower")
     );
 

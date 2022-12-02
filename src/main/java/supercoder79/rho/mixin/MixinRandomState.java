@@ -37,6 +37,14 @@ public class MixinRandomState {
                 oldRouter.fluidLevelFloodednessNoise(),
                 oldRouter.fluidLevelSpreadNoise(),
                 oldRouter.lavaNoise(),
+                ////
+//                oldRouter.temperature(),
+//                oldRouter.vegetation(),
+//                oldRouter.continents(),
+//                oldRouter.erosion(),
+//                oldRouter.depth(),
+//                oldRouter.ridges(),
+                    ////
                 new RhoDensityFunction(
                         RhoCompiler.compile("Temp", oldRouter.temperature())
                 ),

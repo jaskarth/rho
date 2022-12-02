@@ -2,6 +2,7 @@ package supercoder79.rho.gen;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import supercoder79.rho.ast.Node;
+import supercoder79.rho.opto.passes.GlobalNodeNumbering;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,8 +33,9 @@ public final class DotExporter {
         for (Map.Entry<Node, Integer> e : ids.entrySet()) {
             Integer val = e.getValue();
             Node nd = e.getKey();
+            int gval = GlobalNodeNumbering.numbers.getOrDefault(nd, -1);
 
-            builder.append("\t").append(val).append(" [label=\"").append(nd.getClass().getSimpleName());
+            builder.append("\t").append(val).append(" [label=\"").append((gval == -1 ? "" : gval + " ") + nd.getClass().getSimpleName());
             String dotLabel = nd.getDotNodeLabel();
             if (!dotLabel.isEmpty()) {
                 builder.append("\n");
