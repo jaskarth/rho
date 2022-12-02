@@ -8,6 +8,7 @@
     "LevelChunkSectionAccessor",
     "MixinAquifer",
     "MixinDensityFunctions",
+    "MixinNetherFossilStructure",
     "MixinNoiseChunk",
     "MixinNoiseChunkGenerator",
     "MixinRandomState",
