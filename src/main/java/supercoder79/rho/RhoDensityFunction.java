@@ -3,6 +3,7 @@ package supercoder79.rho;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.util.KeyDispatchDataCodec;
+import net.minecraft.util.ToFloatFunction;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
@@ -23,9 +24,14 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
     public DensityFunction mapAll(Visitor visitor) {
         List args = rho.getArgs();
         for (int i = 0; i < args.size(); i++) {
-            if (args.get(i) instanceof CubicSpline<?,?> s) {
-                CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate> spline = (CubicSpline<DensityFunctions.Spline.Point, DensityFunctions.Spline.Coordinate>) (s);
-                args.set(i, spline.mapAll(coordinate -> coordinate.mapAll(visitor)));
+            if (args.get(i) instanceof CubicSpline s) {
+                args.set(i, s.mapAll(coordinate -> {
+                    if (coordinate instanceof DensityFunctions.Spline.Coordinate coord) {
+                        return coord.mapAll(visitor);
+                    }
+
+                    return coordinate;
+                }));
             }
         }
 

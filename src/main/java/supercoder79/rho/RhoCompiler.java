@@ -1,7 +1,10 @@
 package supercoder79.rho;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.util.CubicSpline;
+import net.minecraft.util.ToFloatFunction;
 import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.DensityFunctions;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 import supercoder79.rho.ast.McToAst;
@@ -24,8 +27,6 @@ public final class RhoCompiler {
     public static boolean DO_COMPILE = true;
 
     // TODO: handle on-demand compilation better
-
-    // TODO: some splines use density functions? those need to also be compiled
 
     private static int compileCount = 0;
 
@@ -116,6 +117,15 @@ public final class RhoCompiler {
             e.printStackTrace();
         }
 
+        for (int i = 0; i < data.size(); i++) {
+            Object obj = data.get(i);
+
+            CubicSpline spline = compileSpline(name, obj);
+
+            if (spline != null) {
+                data.set(i, spline);
+            }
+        }
 
         Object o;
         try {
@@ -135,6 +145,55 @@ public final class RhoCompiler {
 //        if (true) throw new RuntimeException();
 
         return (RhoClass)o;
+    }
+
+    private static CubicSpline compileSpline(String name, Object obj) {
+        if (obj instanceof CubicSpline.Multipoint multipoint) {
+            ToFloatFunction coordinate = multipoint.coordinate();
+
+            float[] locations = multipoint.locations();
+            // List of cubic splines
+            List values = multipoint.values();
+            float[] derivatives = multipoint.derivatives();
+            float max = multipoint.maxValue();
+            float min = multipoint.minValue();
+
+            boolean didWork = false;
+            if (coordinate instanceof DensityFunctions.Spline.Coordinate coord) {
+                coordinate = new RhoSplineCoord(
+                        compile(name + "_SplC", coord.function().value()),
+                        coord.minValue(),
+                        coord.maxValue()
+                );
+                didWork = true;
+            }
+
+            values = new ArrayList(values);
+
+            for (int i = 0; i < values.size(); i++) {
+                Object value = values.get(i);
+
+                CubicSpline res = compileSpline(name + "_Spl" + i, value);
+
+                if (res != null) {
+                    values.set(i, res);
+                    didWork = true;
+                }
+            }
+
+            if (didWork) {
+                return new CubicSpline.Multipoint(
+                        coordinate,
+                        locations,
+                        values,
+                        derivatives,
+                        max,
+                        min
+                );
+            }
+        }
+
+        return null;
     }
 
     private static void buildConstructor(CodegenContext ctx, String name, MethodVisitor init) {

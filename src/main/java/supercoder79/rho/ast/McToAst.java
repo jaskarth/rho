@@ -129,8 +129,6 @@ public final class McToAst {
             int idxNext = data.size();
             data.add(spline.spline());
 
-            // TODO: compile spline multipoints
-
             return new SplineNode(idxNext);
         } else if (function instanceof DensityFunctions.Constant constant) {
             return new ConstNode(constant.value());
