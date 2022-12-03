@@ -1,6 +1,7 @@
 package supercoder79.rho.ast.high.complex;
 
 import supercoder79.rho.ClassRefs;
+import supercoder79.rho.RemappingClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.Var;
 import supercoder79.rho.ast.low.*;
@@ -22,7 +23,7 @@ public record CacheFlatNode(int index, Node node) implements Node {
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, CACHE_DESC), index);
 
         Node asLong = new InvokeNode(
-                INVOKESTATIC, "net/minecraft/world/level/ChunkPos", "asLong", "(II)J",
+                INVOKESTATIC, RemappingClassRefs.CLASS_CHUNKPOS.get(), RemappingClassRefs.METHOD_CHUNKPOS_ASLONG.get(), "(II)J",
                 new ContextBlockInsnNode(CodegenContext.Type.X, false), new ContextBlockInsnNode(CodegenContext.Type.Z, false));
 
         Node varDef = new VarAssignNode(varJ, asLong, LSTORE);

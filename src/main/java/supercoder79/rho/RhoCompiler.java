@@ -58,12 +58,14 @@ public final class RhoCompiler {
 
         // FIXME: cleanup
 
+        String desc = ClassRefs.methodDescriptor(ClassRefs.DOUBLE, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get());
+
         MethodVisitor method =
 //                new FlowAnalysisAdapter(
 //                        name, Opcodes.ACC_PUBLIC, "compute", "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D",
                 new AnalyzerAdapter(
-                        name, Opcodes.ACC_PUBLIC, "compute", "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D",
-                        visitor.visitMethod(Opcodes.ACC_PUBLIC, "compute", "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)D", null, null)
+                        name, Opcodes.ACC_PUBLIC, "compute", desc,
+                        visitor.visitMethod(Opcodes.ACC_PUBLIC, "compute", desc, null, null)
 //                )
     );
 
@@ -96,7 +98,7 @@ public final class RhoCompiler {
 
         buildConstructor(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "<init>", ClassRefs.methodDescriptor(ClassRefs.VOID, ClassRefs.LIST), null, null));
 
-        buildInitMethod(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "init", "(Lnet/minecraft/world/level/ChunkPos;)V", null, null));
+        buildInitMethod(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "init", ClassRefs.methodDescriptor(ClassRefs.VOID, RemappingClassRefs.CLASS_CHUNKPOS.get()), null, null));
         buildGetArgs(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "getArgs", ClassRefs.methodDescriptor(ClassRefs.LIST), null, null));
         buildMakeNew(ctx, name, visitor.visitMethod(Opcodes.ACC_PUBLIC, "makeNew", ClassRefs.methodDescriptor(ClassRefs.RHO_CLASS, ClassRefs.LIST), null, null));
 
@@ -239,7 +241,7 @@ public final class RhoCompiler {
                 init.visitVarInsn(Opcodes.ALOAD, 0);
                 init.visitFieldInsn(Opcodes.GETFIELD, className, ref.getFirst().name(), ref.getFirst().desc());
                 init.visitVarInsn(Opcodes.ALOAD, 1);
-                init.visitMethodInsn(Opcodes.INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "init", "(Lnet/minecraft/world/level/ChunkPos;)V", true);
+                init.visitMethodInsn(Opcodes.INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "init", ClassRefs.methodDescriptor(ClassRefs.VOID, RemappingClassRefs.CLASS_CHUNKPOS.get()), true);
             }
         }
 
@@ -247,7 +249,7 @@ public final class RhoCompiler {
 
         init.visitLabel(end);
         init.visitLocalVariable("this", ClassRefs.descriptor(className), null, start, end, 0);
-        init.visitLocalVariable("ctx", "Lnet/minecraft/world/level/ChunkPos;", null, start, end, 1);
+        init.visitLocalVariable("ctx", RemappingClassRefs.CLASS_CHUNKPOS.getAsDescriptor(), null, start, end, 1);
         init.visitMaxs(0, 0);
     }
 

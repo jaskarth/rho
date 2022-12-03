@@ -1,5 +1,7 @@
 package supercoder79.rho.ast.high;
 
+import supercoder79.rho.ClassRefs;
+import supercoder79.rho.RemappingClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.Var;
 import supercoder79.rho.ast.low.*;
@@ -13,17 +15,17 @@ public record SplineNode(int idx) implements Node {
 
         // FIXME: make this better
         String id = ctx.getNextFieldId("spline");
-        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, "Lnet/minecraft/util/CubicSpline;", null, null));
-        ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, "Lnet/minecraft/util/CubicSpline;"), idx);
+        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, RemappingClassRefs.CLASS_CUBIC_SPLINE.getAsDescriptor(), null, null));
+        ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, RemappingClassRefs.CLASS_CUBIC_SPLINE.getAsDescriptor()), idx);
 
-        Node getfield = new GetFieldNode(false, ctx.contextName(), id, "Lnet/minecraft/util/CubicSpline;");
-        Node newNode = new NewNode("net/minecraft/world/level/levelgen/DensityFunctions$Spline$Point");
+        Node getfield = new GetFieldNode(false, ctx.contextName(), id, RemappingClassRefs.CLASS_CUBIC_SPLINE.getAsDescriptor());
+        Node newNode = new NewNode(RemappingClassRefs.CLASS_SPLINEPOINT.get());
         Node dup = new RawInsnNode(DUP);
         Node varReference = new VarReferenceNode(new Var(1), ALOAD);
-        Node init = new InvokeNode(INVOKESPECIAL, "net/minecraft/world/level/levelgen/DensityFunctions$Spline$Point", "<init>",
-                "(Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;)V", varReference);
+        Node init = new InvokeNode(INVOKESPECIAL, RemappingClassRefs.CLASS_SPLINEPOINT.get(), "<init>",
+                ClassRefs.methodDescriptor(ClassRefs.VOID, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get()), varReference);
 
-        Node apply = new InvokeNode(INVOKEINTERFACE, "net/minecraft/util/CubicSpline", "apply", "(Ljava/lang/Object;)F");
+        Node apply = new InvokeNode(INVOKEINTERFACE, RemappingClassRefs.CLASS_CUBIC_SPLINE.get(), RemappingClassRefs.METHOD_SPLINE_APPLY.get(), "(Ljava/lang/Object;)F");
 
 //        throw new RuntimeException();
 

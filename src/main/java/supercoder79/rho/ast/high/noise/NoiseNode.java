@@ -1,6 +1,7 @@
 package supercoder79.rho.ast.high.noise;
 
 import supercoder79.rho.ClassRefs;
+import supercoder79.rho.RemappingClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.common.ConstNode;
 import supercoder79.rho.ast.common.MulNode;
@@ -16,15 +17,15 @@ public record NoiseNode(int noiseIdx, double xzScale, double yScale) implements 
     @Override
     public Node lower(CodegenContext ctx) {
         String id = ctx.getNextFieldId("noise");
-        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;", null, null));
-        ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;"), noiseIdx);
+        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor(), null, null));
+        ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor()), noiseIdx);
 
-        Node getfield = new GetFieldNode(false, ctx.contextName(), id, "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;");
+        Node getfield = new GetFieldNode(false, ctx.contextName(), id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor());
         Node x = new MulNode(new ContextBlockInsnNode(CodegenContext.Type.X), new ConstNode(xzScale));
         Node y = new MulNode(new ContextBlockInsnNode(CodegenContext.Type.Y), new ConstNode(yScale));
         Node z = new MulNode(new ContextBlockInsnNode(CodegenContext.Type.Z), new ConstNode(xzScale));
 
-        return new InvokeNode(INVOKEVIRTUAL, "net/minecraft/world/level/levelgen/synth/NormalNoise", "getValue",
+        return new InvokeNode(INVOKEVIRTUAL, RemappingClassRefs.CLASS_NORMALNOISE.get(), RemappingClassRefs.METHOD_NORMALNOISE_GETVALUE.get(),
                 ClassRefs.methodDescriptor(ClassRefs.DOUBLE, ClassRefs.DOUBLE, ClassRefs.DOUBLE, ClassRefs.DOUBLE),
                 getfield, x, y, z);
     }

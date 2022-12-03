@@ -1,5 +1,6 @@
 package supercoder79.rho.ast.high.noise;
 
+import supercoder79.rho.RemappingClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.common.ConstNode;
 import supercoder79.rho.ast.common.MulNode;
@@ -14,15 +15,15 @@ public record ShiftNoiseNode(int noiseIdx, Node shiftX, Node shiftY, Node shiftZ
     @Override
     public Node lower(CodegenContext ctx) {
         String id = ctx.getNextFieldId("noise");
-        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;", null, null));
-        ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;"), noiseIdx);
+        ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor(), null, null));
+        ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor()), noiseIdx);
 
-        Node getfield = new GetFieldNode(false, ctx.contextName(), id, "Lnet/minecraft/world/level/levelgen/synth/NormalNoise;");
+        Node getfield = new GetFieldNode(false, ctx.contextName(), id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor());
         Node x = new MulNode(shiftX, new ConstNode(0.25)).lower(ctx);
         Node y = new MulNode(shiftY, new ConstNode(0.25)).lower(ctx);
         Node z = new MulNode(shiftZ, new ConstNode(0.25)).lower(ctx);
 
-        return new MulNode(new InvokeNode(INVOKEVIRTUAL, "net/minecraft/world/level/levelgen/synth/NormalNoise", "getValue", "(DDD)D", getfield, x, y, z), new ConstNode(4.0));
+        return new MulNode(new InvokeNode(INVOKEVIRTUAL, RemappingClassRefs.CLASS_NORMALNOISE.get(), RemappingClassRefs.METHOD_NORMALNOISE_GETVALUE.get(), "(DDD)D", getfield, x, y, z), new ConstNode(4.0));
     }
 
     @Override

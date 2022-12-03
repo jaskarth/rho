@@ -3,9 +3,8 @@ package supercoder79.rho.gen;
 import com.mojang.datafixers.util.Pair;
 import org.objectweb.asm.*;
 import supercoder79.rho.ClassRefs;
-import supercoder79.rho.ast.Node;
+import supercoder79.rho.RemappingClassRefs;
 import supercoder79.rho.ast.Var;
-import supercoder79.rho.ast.common.ReturnNode;
 
 import java.util.*;
 import java.util.function.Consumer;
@@ -46,7 +45,7 @@ public class CodegenContext implements Opcodes {
 
     public void applyLocals(Label start, Label end) {
         this.method.visitLocalVariable("this", ClassRefs.descriptor(contextName()), null, start, end, 0);
-        this.method.visitLocalVariable("ctx", "Lnet/minecraft/world/level/levelgen/DensityFunction$FunctionContext;", null, start, end, 1);
+        this.method.visitLocalVariable("ctx", RemappingClassRefs.CLASS_FUNCTION_CONTEXT.getAsDescriptor(), null, start, end, 1);
 
         for (Pair<Var, String> var : this.vars) {
             this.method.visitLocalVariable("rho" + var.getFirst().index(), var.getSecond(), null, start, end, var.getFirst().index());
@@ -67,11 +66,11 @@ public class CodegenContext implements Opcodes {
 
         // TODO: remap
         if (type == Type.X) {
-            method.visitMethodInsn(INVOKEINTERFACE, "net/minecraft/world/level/levelgen/DensityFunction$FunctionContext", "blockX", "()I", true);
+            method.visitMethodInsn(INVOKEINTERFACE, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get(), RemappingClassRefs.METHOD_FUNCTION_CONTEXT_BLOCKX.get(), "()I", true);
         } else if (type == Type.Y) {
-            method.visitMethodInsn(INVOKEINTERFACE, "net/minecraft/world/level/levelgen/DensityFunction$FunctionContext", "blockY", "()I", true);
+            method.visitMethodInsn(INVOKEINTERFACE, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get(), RemappingClassRefs.METHOD_FUNCTION_CONTEXT_BLOCKY.get(), "()I", true);
         } else {
-            method.visitMethodInsn(INVOKEINTERFACE, "net/minecraft/world/level/levelgen/DensityFunction$FunctionContext", "blockZ", "()I", true);
+            method.visitMethodInsn(INVOKEINTERFACE, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get(), RemappingClassRefs.METHOD_FUNCTION_CONTEXT_BLOCKZ.get(), "()I", true);
         }
 
         if (asDouble) {

@@ -16,12 +16,11 @@ import supercoder79.rho.RhoCompiler;
 public class MixinGameRenderer {
     @Inject(
             method = "render",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lcom/mojang/blaze3d/vertex/PoseStack;IIF)V", shift = At.Shift.AFTER),
-            locals = LocalCapture.CAPTURE_FAILHARD
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screens/Screen;render(Lcom/mojang/blaze3d/vertex/PoseStack;IIF)V", shift = At.Shift.AFTER)
     )
-    private void renderRhoData(float f, long l, boolean bl, CallbackInfo ci, int i, int j, Window window, Matrix4f matrix4f, PoseStack poseStack, PoseStack poseStack2) {
+    private void renderRhoData(float f, long l, boolean bl, CallbackInfo ci) {
         if (RhoCompiler.isCompilingCurrently) {
-            Minecraft.getInstance().font.draw(poseStack2, "Rho: Compiling \"" + RhoCompiler.currentName + "\" at status \"" + RhoCompiler.currentStatus + "\"", 0, 0, 0xFFFFFF);
+            Minecraft.getInstance().font.draw(new PoseStack(), "Rho: Compiling \"" + RhoCompiler.currentName + "\" at status \"" + RhoCompiler.currentStatus + "\"", 0, 0, 0xFFFFFF);
         }
     }
 }
