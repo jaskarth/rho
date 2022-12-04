@@ -1,6 +1,7 @@
 package supercoder79.rho.gen;
 
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
+import supercoder79.rho.RhoCompiler;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.opto.passes.GlobalNodeNumbering;
 
@@ -14,6 +15,10 @@ import java.util.Map;
 
 public final class DotExporter {
     public static void toDotFile(Node node, String name) {
+        if (!RhoCompiler.DUMP_DEBUG_DATA) {
+            return;
+        }
+
         StringBuilder builder = new StringBuilder();
 
         builder.append("digraph ").append(name).append(" {\n");
@@ -61,7 +66,9 @@ public final class DotExporter {
         builder.append("}");
 
         try {
-            Files.writeString(Path.of("dot", name + ".dot"), builder.toString());
+            Path dot = Path.of("dot", name + ".dot");
+            dot.toFile().getParentFile().mkdirs();
+            Files.writeString(dot, builder.toString());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

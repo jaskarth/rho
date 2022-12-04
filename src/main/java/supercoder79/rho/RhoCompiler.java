@@ -26,6 +26,7 @@ public final class RhoCompiler {
     public static String currentStatus = "";
     public static boolean DO_COMPILE = true;
     public static boolean COMPILE_RECURSIVELY = true;
+    public static boolean DUMP_DEBUG_DATA = false;
 
     // TODO: handle on-demand compilation better
 
@@ -111,13 +112,15 @@ public final class RhoCompiler {
 
         byte[] bytes = writer.toByteArray();
 
-        File file = Paths.get(".", "compiled", name + ".class").toFile();
-        file.getParentFile().mkdirs();
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(bytes);
-            System.out.println("!!");
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (DUMP_DEBUG_DATA) {
+            File file = Paths.get(".", "compiled", name + ".class").toFile();
+            file.getParentFile().mkdirs();
+            try (FileOutputStream fos = new FileOutputStream(file)) {
+                fos.write(bytes);
+                System.out.println("!!");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         if (COMPILE_RECURSIVELY) {
