@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -131,27 +132,8 @@ public class RhoAquifer implements Aquifer {
 			int x1 = (i & 3) >> 1;
 			int z1 = i & 1;
 
-			int gridX = startX + x1;
-			int gridZ = startZ + z1;
-			int gridY = startY + y1;
-
-			int index = this.getIndex(gridX, gridY, gridZ);
-			long cached = this.aquiferLocationCache[index];
-
-			// Branch prob: ~ 2048:1 hit:miss
-			long pos;
-			if (cached != Long.MAX_VALUE) {
-				pos = cached;
-			} else {
-				RandomSource randomSource = this.positionalRandomFactory.at(gridX, gridY, gridZ);
-				pos = BlockPos.asLong(gridX * 16 + randomSource.nextInt(10), gridY * 12 + randomSource.nextInt(9), gridZ * 16 + randomSource.nextInt(10));
-				this.aquiferLocationCache[index] = pos;
-			}
-
-			int ad = BlockPos.getX(pos) - x;
-			int ae = BlockPos.getY(pos) - y;
-			int af = BlockPos.getZ(pos) - z;
-			int dist = ad * ad + ae * ae + af * af;
+			long pos = getPos(startX, startY, startZ, y1, x1, z1);
+			int dist = getDist(x, y, z, pos);
 
 			if (dist1 >= dist) {
 				pos3 = pos2;
@@ -171,7 +153,12 @@ public class RhoAquifer implements Aquifer {
 			}
 		}
 
-		Aquifer.FluidStatus status1 = this.getAquiferStatus(pos1);
+		return getBlockState(functionContext, density, x, y, z, dist1, dist2, dist3, pos1, pos2, pos3);
+	}
+
+	@Nullable
+	private BlockState getBlockState(DensityFunction.FunctionContext functionContext, double density, int x, int y, int z, int dist1, int dist2, int dist3, long pos1, long pos2, long pos3) {
+		FluidStatus status1 = this.getAquiferStatus(pos1);
 		double similarity1To2 = similarity(dist1, dist2);
 
 		BlockState blockState = status1.at(y);
@@ -188,14 +175,14 @@ public class RhoAquifer implements Aquifer {
 		double similarity1To3 = similarity(dist1, dist3);
 		double similarity2To3 = similarity(dist2, dist3);
 
-		Aquifer.FluidStatus status2 = this.getAquiferStatus(pos2);
+		FluidStatus status2 = this.getAquiferStatus(pos2);
 		double f = similarity1To2 * this.calculatePressure(functionContext, status1, status2);
 		if (density + f > 0.0) {
 			this.shouldScheduleFluidUpdate = false;
 			return null;
 		}
 
-		Aquifer.FluidStatus status3 = this.getAquiferStatus(pos3);
+		FluidStatus status3 = this.getAquiferStatus(pos3);
 		if (similarity1To3 > 0.0) {
 			double h = similarity1To2 * similarity1To3 * this.calculatePressure(functionContext, status1, status3);
 			if (density + h > 0.0) {
@@ -214,6 +201,34 @@ public class RhoAquifer implements Aquifer {
 
 		this.shouldScheduleFluidUpdate = true;
 		return blockState;
+	}
+
+	private int getDist(int x, int y, int z, long pos) {
+		int ad = BlockPos.getX(pos) - x;
+		int ae = BlockPos.getY(pos) - y;
+		int af = BlockPos.getZ(pos) - z;
+		return ad * ad + ae * ae + af * af;
+	}
+
+	private long getPos(int startX, int startY, int startZ, int y1, int x1, int z1) {
+		int gridX = startX + x1;
+		int gridZ = startZ + z1;
+		int gridY = startY + y1;
+
+		int index = this.getIndex(gridX, gridY, gridZ);
+		long cached = this.aquiferLocationCache[index];
+
+		// Branch prob: ~ 2048:1 hit:miss
+		long pos;
+		if (cached != Long.MAX_VALUE) {
+			pos = cached;
+		} else {
+			RandomSource randomSource = this.positionalRandomFactory.at(gridX, gridY, gridZ);
+			pos = BlockPos.asLong(gridX * 16 + randomSource.nextInt(10), gridY * 12 + randomSource.nextInt(9), gridZ * 16 + randomSource.nextInt(10));
+			this.aquiferLocationCache[index] = pos;
+		}
+
+		return pos;
 	}
 
 	@Override
