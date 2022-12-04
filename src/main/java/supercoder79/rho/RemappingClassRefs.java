@@ -25,6 +25,11 @@ public class RemappingClassRefs {
 
 
     public static String remap(String dev, String intermediary) {
+        // Hack for standalone test
+        if (!RhoCompiler.DO_COMPILE) {
+            return dev;
+        }
+
         return FabricLoader.getInstance().isDevelopmentEnvironment() ? dev : intermediary;
     }
 

@@ -18,6 +18,7 @@ public final class OptoPasses {
             of(InstCombine::combineInstructions, "InstCombine"),
             of(FoldConstants::foldConstants, "FoldConstInstCombine"),
             of(LowerAst::lower, "Lower"),
+            of(FixedCSE::elimCommonSubexpressions, "FixedCSE"),
             of(FoldConstants::foldConstants, "PostLowerFoldConst")
 //            of(FoldFma::foldFma, "FoldFMA"),
 //            of(FoldConstants::foldConstants, "FoldConstAF")

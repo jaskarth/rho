@@ -25,6 +25,7 @@ public final class RhoCompiler {
     public static String currentName = "";
     public static String currentStatus = "";
     public static boolean DO_COMPILE = true;
+    public static boolean COMPILE_RECURSIVELY = true;
 
     // TODO: handle on-demand compilation better
 
@@ -119,13 +120,15 @@ public final class RhoCompiler {
             e.printStackTrace();
         }
 
-        for (int i = 0; i < data.size(); i++) {
-            Object obj = data.get(i);
+        if (COMPILE_RECURSIVELY) {
+            for (int i = 0; i < data.size(); i++) {
+                Object obj = data.get(i);
 
-            CubicSpline spline = compileSpline(name, obj);
+                CubicSpline spline = compileSpline(name, obj);
 
-            if (spline != null) {
-                data.set(i, spline);
+                if (spline != null) {
+                    data.set(i, spline);
+                }
             }
         }
 

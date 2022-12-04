@@ -17,15 +17,15 @@ public final class TestStandalone {
         Bootstrap.bootStrap();
 
         RhoCompiler.DO_COMPILE = false;
+//        RhoCompiler.COMPILE_RECURSIVELY = false;
 
         NoiseRouter router = BuiltinRegistries.NOISE_GENERATOR_SETTINGS.get(NoiseGeneratorSettings.OVERWORLD).noiseRouter();
 //        RandomState randomState = RandomState.create(RegistryAccess.builtinCopy(), NoiseGeneratorSettings.OVERWORLD, 200);
 //        NoiseRouter router = randomState.router();
 //        System.out.println(router.ridges());
-        DensityFunction func = router.barrierNoise();
+        DensityFunction func = router.initialDensityWithoutJaggedness();
 
         RhoClass compiled = RhoCompiler.compile(func);
-        compiled.makeNew(new ArrayList());
         DensityFunction rfunc = new RhoDensityFunction(compiled);
 
         for (int i = 0; i < 10; i++) {

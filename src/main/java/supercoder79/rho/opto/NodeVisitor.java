@@ -6,6 +6,7 @@ import supercoder79.rho.ast.Node;
 
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public final class NodeVisitor {
@@ -59,6 +60,14 @@ public final class NodeVisitor {
         }
 
         return new ReplaceRes(0, node);
+    }
+
+    public static void visitNodeTree(Node node, Consumer<Node> action) {
+        action.accept(node);
+
+        for (Node child : node.children()) {
+            visitNodeTree(child, action);
+        }
     }
 
     private record ReplaceRes(int type, Node node) {
