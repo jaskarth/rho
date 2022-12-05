@@ -2,6 +2,7 @@ package supercoder79.rho.ast;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
+import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import supercoder79.rho.FlatCache2;
 import supercoder79.rho.SingleCache;
 import supercoder79.rho.ast.common.AddNode;
@@ -10,10 +11,7 @@ import supercoder79.rho.ast.common.MulNode;
 import supercoder79.rho.ast.common.ReturnNode;
 import supercoder79.rho.ast.high.*;
 import supercoder79.rho.ast.high.complex.*;
-import supercoder79.rho.ast.high.noise.EndNoiseNode;
-import supercoder79.rho.ast.high.noise.NoiseNode;
-import supercoder79.rho.ast.high.noise.ShiftNoiseDirectNode;
-import supercoder79.rho.ast.high.noise.ShiftNoiseNode;
+import supercoder79.rho.ast.high.noise.*;
 import supercoder79.rho.ast.low.ContextBlockInsnNode;
 import supercoder79.rho.gen.CodegenContext;
 
@@ -72,7 +70,10 @@ public final class McToAst {
             return new EndNoiseNode(idxNext);
         } else if (function instanceof DensityFunctions.Marker marker) {
             if (marker.type() == DensityFunctions.Marker.Type.Interpolated) {
-                return new InterpolationNode(asNode(marker.wrapped(), data));
+                int idxNext = data.size();
+                data.add(marker);
+
+                return new InterpolationNode(idxNext);
             } else if (marker.type() == DensityFunctions.Marker.Type.Cache2D) {
                 int idxNext = data.size();
                 data.add(new SingleCache.Threaded());
@@ -114,8 +115,14 @@ public final class McToAst {
             data.add(shiftB.offsetNoise().noise());
 
             return new ShiftNoiseNode(idxNext, new ContextBlockInsnNode(CodegenContext.Type.X), new ContextBlockInsnNode(CodegenContext.Type.Y), new ConstNode(0));
-        } else if (function instanceof DensityFunctions.WeirdScaledSampler weirdScaledSampler) {
-//            return new YGradNode();
+        } else if (function instanceof DensityFunctions.WeirdScaledSampler weird) {
+            int idxNoise = data.size();
+            data.add(weird.noise().noise());
+
+            int idxFunc = data.size();
+            data.add(weird.rarityValueMapper().mapper);
+
+            return new WeirdSamplerNode(asNode(weird.input(), data), idxNoise, idxFunc);
         } else if (function instanceof DensityFunctions.BlendDensity blendDensity) {
             // TODO: implement these three
             return asNode(blendDensity.input(), data);
@@ -134,6 +141,11 @@ public final class McToAst {
             return new ConstNode(constant.value());
         } else if (function instanceof DensityFunctions.HolderHolder holder2) {
             return asNode(holder2.function().value(), data);
+        } else if (function instanceof BlendedNoise blended) {
+            int idxNext = data.size();
+            data.add(blended);
+
+            return new BlendedNoiseNode(idxNext);
         }
 
         throw new IllegalStateException("Could not decompose density function for type: " + function.getClass().getName());

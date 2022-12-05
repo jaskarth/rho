@@ -14,7 +14,7 @@ public record SequenceNode(Node... nodes) implements Node {
 
     @Override
     public boolean isLow() {
-        return false;
+        return true;
     }
 
     @Override

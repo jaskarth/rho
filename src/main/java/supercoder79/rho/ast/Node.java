@@ -18,9 +18,9 @@ public interface Node extends Opcodes {
 
     default void codegen(CodegenContext ctx, MethodVisitor visitor) {
         if (isLow()) {
-            throw new IllegalStateException("Cannot codegen a non-lowered node");
+            throw new IllegalStateException("Lowered node must generate code: " + getClass().getSimpleName());
         } else {
-            throw new IllegalStateException("Lowered node must generate code");
+            throw new IllegalStateException("Cannot codegen a non-lowered node: " + this.getClass().getSimpleName());
         }
     }
 

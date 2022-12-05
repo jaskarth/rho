@@ -38,36 +38,39 @@ public class MixinRandomState {
                 oldRouter.fluidLevelSpreadNoise(),
                 oldRouter.lavaNoise(),
                 ////
-//                oldRouter.temperature(),
-//                oldRouter.vegetation(),
-//                oldRouter.continents(),
-//                oldRouter.erosion(),
-//                oldRouter.depth(),
-//                oldRouter.ridges(),
+                oldRouter.temperature(),
+                oldRouter.vegetation(),
+                oldRouter.continents(),
+                oldRouter.erosion(),
+                oldRouter.depth(),
+                oldRouter.ridges(),
                     ////
-                new RhoDensityFunction(
-                        RhoCompiler.compile("Temp", oldRouter.temperature())
-                ),
-                new RhoDensityFunction(
-                        RhoCompiler.compile("Vegetation", oldRouter.vegetation())
-                ),
-                new RhoDensityFunction(
-                        RhoCompiler.compile("Continents", oldRouter.continents())
-                ),
-                new RhoDensityFunction(
-                        RhoCompiler.compile("Erosion", oldRouter.erosion())
-                ),
-                new RhoDensityFunction(
-                        RhoCompiler.compile("Depth", oldRouter.depth())
-                ),
-                new RhoDensityFunction(
-                        RhoCompiler.compile("Ridges", oldRouter.ridges())
-                ),
+//                new RhoDensityFunction(
+//                        RhoCompiler.compile("Temp", oldRouter.temperature())
+//                ),
+//                new RhoDensityFunction(
+//                        RhoCompiler.compile("Vegetation", oldRouter.vegetation())
+//                ),
+//                new RhoDensityFunction(
+//                        RhoCompiler.compile("Continents", oldRouter.continents())
+//                ),
+//                new RhoDensityFunction(
+//                        RhoCompiler.compile("Erosion", oldRouter.erosion())
+//                ),
+//                new RhoDensityFunction(
+//                        RhoCompiler.compile("Depth", oldRouter.depth())
+//                ),
+//                new RhoDensityFunction(
+//                        RhoCompiler.compile("Ridges", oldRouter.ridges())
+//                ),
                 // Initial density
+                oldRouter.initialDensityWithoutJaggedness(),
+//                new RhoDensityFunction(
+//                        RhoCompiler.compile("InitialDensity", oldRouter.initialDensityWithoutJaggedness())
+//                ),
                 new RhoDensityFunction(
-                        RhoCompiler.compile("InitialDensity", oldRouter.initialDensityWithoutJaggedness())
+                        RhoCompiler.compile("Final", oldRouter.finalDensity())
                 ),
-                oldRouter.finalDensity(),
                 oldRouter.veinToggle(),
                 oldRouter.veinRidged(),
                 oldRouter.veinGap()

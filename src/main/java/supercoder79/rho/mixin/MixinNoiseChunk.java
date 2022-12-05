@@ -46,5 +46,15 @@ public class MixinNoiseChunk {
                 rhoRecurseInit(value, pos);
             }
         }
+
+        if (o instanceof DensityFunctions.Marker marker) {
+            if (marker.wrapped() instanceof RhoDensityFunction rho) {
+                rho.rho().init(pos);
+
+                for (Object arg : rho.rho().getArgs()) {
+                    rhoRecurseInit(arg, pos);
+                }
+            }
+        }
     }
 }

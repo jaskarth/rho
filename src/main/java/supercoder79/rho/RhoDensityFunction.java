@@ -31,6 +31,10 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
                 args.set(i, new SingleCache.Threaded());
             }
 
+            if (o instanceof DensityFunctions.Marker marker) {
+                visitor.apply(marker);
+            }
+
             if (o instanceof CubicSpline s) {
                 args.set(i, s.mapAll(coordinate -> {
                     if (coordinate instanceof DensityFunctions.Spline.Coordinate coord) {

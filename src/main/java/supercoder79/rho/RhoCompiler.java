@@ -26,7 +26,7 @@ public final class RhoCompiler {
     public static String currentStatus = "";
     public static boolean DO_COMPILE = true;
     public static boolean COMPILE_RECURSIVELY = true;
-    public static boolean DUMP_DEBUG_DATA = false;
+    public static boolean DUMP_DEBUG_DATA = true;
 
     // TODO: handle on-demand compilation better
 
@@ -131,6 +131,12 @@ public final class RhoCompiler {
 
                 if (spline != null) {
                     data.set(i, spline);
+                }
+
+                if (obj instanceof DensityFunctions.Marker marker) {
+                    RhoClass inner = compile(name + "_Int" + i , marker.wrapped());
+
+                    data.set(i, DensityFunctions.interpolated(new RhoDensityFunction(inner)));
                 }
             }
         }
