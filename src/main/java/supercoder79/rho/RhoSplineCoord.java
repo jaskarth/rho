@@ -29,6 +29,8 @@ public record RhoSplineCoord(RhoClass rho, float min, float max) implements ToFl
                 args.set(i, new FlatCache2.Threaded());
             } else if (o instanceof SingleCache) {
                 args.set(i, new SingleCache.Threaded());
+            } else if (o instanceof OnceCache) {
+                args.set(i, new OnceCache.Impl());
             }
         }
 

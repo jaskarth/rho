@@ -4,6 +4,7 @@ import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import supercoder79.rho.FlatCache2;
+import supercoder79.rho.OnceCache;
 import supercoder79.rho.SingleCache;
 import supercoder79.rho.ast.common.AddNode;
 import supercoder79.rho.ast.common.ConstNode;
@@ -82,7 +83,10 @@ public final class McToAst {
             } else if (marker.type() == DensityFunctions.Marker.Type.CacheAllInCell) {
                 return new CacheCellNode(asNode(marker.wrapped(), data));
             } else if (marker.type() == DensityFunctions.Marker.Type.CacheOnce) {
-                return new CacheOnceNode(asNode(marker.wrapped(), data));
+                int idxNext = data.size();
+                data.add(new OnceCache.Impl());
+
+                return new CacheOnceNode(idxNext, asNode(marker.wrapped(), data));
             } else if (marker.type() == DensityFunctions.Marker.Type.FlatCache) {
                 int idxNext = data.size();
                 data.add(new FlatCache2.Threaded());
@@ -132,6 +136,8 @@ public final class McToAst {
             return new ConstNode(0);
         } else if (function instanceof DensityFunctions.BeardifierOrMarker beard) {
 //            return new YGradNode();
+            // TODO: implement
+            return new ConstNode(0);
         } else if (function instanceof DensityFunctions.Spline spline) {
             int idxNext = data.size();
             data.add(spline.spline());

@@ -29,6 +29,8 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
                 args.set(i, new FlatCache2.Threaded());
             } else if (o instanceof SingleCache) {
                 args.set(i, new SingleCache.Threaded());
+            } else if (o instanceof OnceCache) {
+                args.set(i, new OnceCache.Impl());
             }
 
             if (o instanceof DensityFunctions.Marker marker) {
