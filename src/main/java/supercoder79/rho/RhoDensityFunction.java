@@ -24,10 +24,21 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
     public DensityFunction mapAll(Visitor visitor) {
         List args = rho.getArgs();
         for (int i = 0; i < args.size(); i++) {
-            if (args.get(i) instanceof CubicSpline s) {
+            Object o = args.get(i);
+            if (o instanceof FlatCache2) {
+                args.set(i, new FlatCache2.Threaded());
+            } else if (o instanceof SingleCache) {
+                args.set(i, new SingleCache.Threaded());
+            }
+
+            if (o instanceof CubicSpline s) {
                 args.set(i, s.mapAll(coordinate -> {
                     if (coordinate instanceof DensityFunctions.Spline.Coordinate coord) {
                         return coord.mapAll(visitor);
+                    }
+
+                    if (coordinate instanceof RhoSplineCoord coord) {
+                        return coord.remap();
                     }
 
                     return coordinate;
