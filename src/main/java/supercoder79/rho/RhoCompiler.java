@@ -73,7 +73,7 @@ public final class RhoCompiler {
 
         CodegenContext ctx = new CodegenContext(name, visitor, method);
 
-        node = RunOptoPasses.optimizeAst(ctx, node, true);
+        node = RunOptoPasses.optimizeAst(ctx, node, false);
 
         Label start = new Label();
         Label end = new Label();
@@ -136,7 +136,7 @@ public final class RhoCompiler {
                 if (obj instanceof DensityFunctions.Marker marker) {
                     RhoClass inner = compile(name + "_Int" + i , marker.wrapped());
 
-                    data.set(i, DensityFunctions.interpolated(new RhoDensityFunction(inner)));
+                    data.set(i, new DensityFunctions.Marker(marker.type(), new RhoDensityFunction(inner)));
                 }
             }
         }

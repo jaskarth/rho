@@ -37,3 +37,4 @@ accessible field net/minecraft/world/level/levelgen/DensityFunctions$WeirdScaled
 accessible field net/minecraft/world/level/levelgen/NoiseChunk interpolationCounter J
 
 accessible method net/minecraft/world/level/levelgen/NoiseChunk$NoiseInterpolator <init> (Lnet/minecraft/world/level/levelgen/NoiseChunk;Lnet/minecraft/world/level/levelgen/DensityFunction;)V
+accessible method net/minecraft/world/level/levelgen/DensityFunctions$Marker <init> (Lnet/minecraft/world/level/levelgen/DensityFunctions$Marker$Type;Lnet/minecraft/world/level/levelgen/DensityFunction;)V

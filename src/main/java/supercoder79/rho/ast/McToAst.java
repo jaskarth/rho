@@ -87,12 +87,17 @@ public final class McToAst {
                 data.add(new OnceCache.Impl());
 
                 return new CacheOnceNode(idxNext, asNode(marker.wrapped(), data));
-            } else if (marker.type() == DensityFunctions.Marker.Type.FlatCache) {
+            }
+            else if (marker.type() == DensityFunctions.Marker.Type.FlatCache) {
                 int idxNext = data.size();
                 data.add(new FlatCache2.Impl());
 
                 return new CacheFlatNode(idxNext, asNode(marker.wrapped(), data));
             }
+//            int idxNext = data.size();
+//            data.add(marker.wrapped());
+//
+//            return new DelegatingNode(idxNext);
         } else if (function instanceof DensityFunctions.Noise noise) {
             int idxNext = data.size();
             data.add(noise.noise().noise());
@@ -155,6 +160,10 @@ public final class McToAst {
             return new BlendedNoiseNode(idxNext);
         }
 
-        throw new IllegalStateException("Could not decompose density function for type: " + function.getClass().getName());
+        System.err.println("Warning: Could not decompose density function for type: " + function.getClass().getName());
+
+        int idxNext = data.size();
+        data.add(function);
+        return new DelegatingNode(idxNext);
     }
 }

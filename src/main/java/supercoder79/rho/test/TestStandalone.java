@@ -24,7 +24,9 @@ import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import supercoder79.rho.RhoClass;
 import supercoder79.rho.RhoCompiler;
 import supercoder79.rho.RhoDensityFunction;
+import supercoder79.rho.gen.DotExporter;
 
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -83,7 +85,7 @@ public final class TestStandalone {
         for (int i = 0; i < 10; i++) {
             long start = System.currentTimeMillis();
             double sum = 0;
-            for (int x = 0; x < 1000; x++) {
+            for (int x = 0; x < 100; x++) {
                 for (int z = 0; z < 100; z++) {
                     for (int y = 0; y < 100; y++) {
                         sum += rfunc.compute(new DensityFunction.SinglePointContext(x, y, z));
@@ -98,7 +100,7 @@ public final class TestStandalone {
 
             start = System.currentTimeMillis();
             sum = 0;
-            for (int x = 0; x < 1000; x++) {
+            for (int x = 0; x < 100; x++) {
                 for (int z = 0; z < 100; z++) {
                     for (int y = 0; y < 100; y++) {
                         sum += func.compute(new DensityFunction.SinglePointContext(x, y, z));
