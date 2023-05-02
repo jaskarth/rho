@@ -3,6 +3,7 @@ package supercoder79.rho;
 import net.minecraft.util.ToFloatFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record RhoSplineCoord(RhoClass rho, float min, float max) implements ToFloatFunction<DensityFunctions.Spline.Point> {
@@ -22,13 +23,13 @@ public record RhoSplineCoord(RhoClass rho, float min, float max) implements ToFl
     }
 
     public RhoSplineCoord remap() {
-        List args = rho.getArgs();
+        List args = new ArrayList(rho.getArgs());
         for (int i = 0; i < args.size(); i++) {
             Object o = args.get(i);
             if (o instanceof FlatCache2) {
-                args.set(i, new FlatCache2.Threaded());
+                args.set(i, new FlatCache2.Impl());
             } else if (o instanceof SingleCache) {
-                args.set(i, new SingleCache.Threaded());
+                args.set(i, new SingleCache.Impl());
             } else if (o instanceof OnceCache) {
                 args.set(i, new OnceCache.Impl());
             }

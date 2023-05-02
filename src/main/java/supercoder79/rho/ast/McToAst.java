@@ -77,7 +77,7 @@ public final class McToAst {
                 return new InterpolationNode(idxNext);
             } else if (marker.type() == DensityFunctions.Marker.Type.Cache2D) {
                 int idxNext = data.size();
-                data.add(new SingleCache.Threaded());
+                data.add(new SingleCache.Impl());
 
                 return new Cache2dNode(idxNext, asNode(marker.wrapped(), data));
             } else if (marker.type() == DensityFunctions.Marker.Type.CacheAllInCell) {
@@ -89,7 +89,7 @@ public final class McToAst {
                 return new CacheOnceNode(idxNext, asNode(marker.wrapped(), data));
             } else if (marker.type() == DensityFunctions.Marker.Type.FlatCache) {
                 int idxNext = data.size();
-                data.add(new FlatCache2.Threaded());
+                data.add(new FlatCache2.Impl());
 
                 return new CacheFlatNode(idxNext, asNode(marker.wrapped(), data));
             }

@@ -7,6 +7,7 @@ import net.minecraft.util.ToFloatFunction;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
@@ -22,19 +23,19 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
 
     @Override
     public DensityFunction mapAll(Visitor visitor) {
-        List args = rho.getArgs();
+        List args = new ArrayList(rho.getArgs());
         for (int i = 0; i < args.size(); i++) {
             Object o = args.get(i);
             if (o instanceof FlatCache2) {
-                args.set(i, new FlatCache2.Threaded());
+                args.set(i, new FlatCache2.Impl());
             } else if (o instanceof SingleCache) {
-                args.set(i, new SingleCache.Threaded());
+                args.set(i, new SingleCache.Impl());
             } else if (o instanceof OnceCache) {
                 args.set(i, new OnceCache.Impl());
             }
 
             if (o instanceof DensityFunctions.Marker marker) {
-                visitor.apply(marker);
+                args.set(i, visitor.apply(marker));
             }
 
             if (o instanceof CubicSpline s) {
