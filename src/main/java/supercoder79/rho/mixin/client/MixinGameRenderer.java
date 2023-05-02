@@ -13,7 +13,7 @@ import supercoder79.rho.RhoCompiler;
 public class MixinGameRenderer {
     @Inject(
             method = "render",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;render(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", shift = At.Shift.AFTER)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/toasts/ToastComponent;render(Lcom/mojang/blaze3d/vertex/PoseStack;)V", shift = At.Shift.AFTER)
     )
     private void renderRhoData(float f, long l, boolean bl, CallbackInfo ci) {
         if (RhoCompiler.isCompilingCurrently) {
