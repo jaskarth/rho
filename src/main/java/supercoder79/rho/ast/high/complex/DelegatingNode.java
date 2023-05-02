@@ -11,10 +11,10 @@ import supercoder79.rho.gen.CodegenContext;
 
 import java.util.List;
 
-public record InterpolationNode(int index) implements Node {
+public record DelegatingNode(int index) implements Node {
     @Override
     public Node lower(CodegenContext ctx) {
-        String id = ctx.getNextFieldId("interpolator");
+        String id = ctx.getNextFieldId("delegate");
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, RemappingClassRefs.CLASS_DENSITY_FUNCTION.getAsDescriptor(), null, null));
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, RemappingClassRefs.CLASS_DENSITY_FUNCTION.getAsDescriptor()), index);
 

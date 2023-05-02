@@ -74,7 +74,7 @@ public final class McToAst {
                 int idxNext = data.size();
                 data.add(marker);
 
-                return new InterpolationNode(idxNext);
+                return new DelegatingNode(idxNext);
             } else if (marker.type() == DensityFunctions.Marker.Type.Cache2D) {
                 int idxNext = data.size();
                 data.add(new SingleCache.Impl());
@@ -135,9 +135,10 @@ public final class McToAst {
         } else if (function instanceof DensityFunctions.BlendOffset blendOffset) {
             return new ConstNode(0);
         } else if (function instanceof DensityFunctions.BeardifierOrMarker beard) {
-//            return new YGradNode();
-            // TODO: implement
-            return new ConstNode(0);
+            int idxNext = data.size();
+            data.add(beard);
+
+            return new DelegatingNode(idxNext);
         } else if (function instanceof DensityFunctions.Spline spline) {
             int idxNext = data.size();
             data.add(spline.spline());

@@ -38,6 +38,10 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
                 args.set(i, visitor.apply(marker));
             }
 
+            if (o instanceof DensityFunctions.BeardifierOrMarker beardifierOrMarker) {
+                args.set(i, visitor.apply(beardifierOrMarker));
+            }
+
             if (o instanceof CubicSpline s) {
                 args.set(i, s.mapAll(coordinate -> {
                     if (coordinate instanceof DensityFunctions.Spline.Coordinate coord) {
