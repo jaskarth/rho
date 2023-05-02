@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import supercoder79.rho.RhoCompiler;
 import supercoder79.rho.RhoDensityFunction;
 
-@Mixin(RandomState.class)
+@Mixin(value = RandomState.class, priority = 950)
 public class MixinRandomState {
     @Mutable
     @Shadow @Final private NoiseRouter router;
