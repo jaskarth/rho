@@ -6,20 +6,10 @@ import net.minecraft.world.level.levelgen.DensityFunctions;
 import java.util.ArrayList;
 import java.util.List;
 
-public record RhoSplineCoord(RhoClass rho, float min, float max) implements ToFloatFunction<DensityFunctions.Spline.Point> {
+public record RhoSplineCoord(RhoClass rho, float minValue, float maxValue) implements ToFloatFunction<DensityFunctions.Spline.Point> {
     @Override
     public float apply(DensityFunctions.Spline.Point point) {
         return (float) rho.compute(point.context());
-    }
-
-    @Override
-    public float minValue() {
-        return min;
-    }
-
-    @Override
-    public float maxValue() {
-        return max;
     }
 
     public RhoSplineCoord remap() {
@@ -35,6 +25,6 @@ public record RhoSplineCoord(RhoClass rho, float min, float max) implements ToFl
             }
         }
 
-        return new RhoSplineCoord(rho.makeNew(args), min, max);
+        return new RhoSplineCoord(rho.makeNew(args), minValue, maxValue);
     }
 }
