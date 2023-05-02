@@ -1,5 +1,6 @@
 package supercoder79.rho.mixin;
 
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
@@ -25,7 +26,7 @@ public class MixinRandomState {
     @Shadow @Final private Climate.Sampler sampler;
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void injectCtor(NoiseGeneratorSettings noiseGeneratorSettings, Registry<NormalNoise.NoiseParameters> registry, long l, CallbackInfo ci) {
+    private void injectCtor(NoiseGeneratorSettings noiseGeneratorSettings, HolderGetter holderGetter, long l, CallbackInfo ci) {
         if (!RhoCompiler.DO_COMPILE) {
             return;
         }

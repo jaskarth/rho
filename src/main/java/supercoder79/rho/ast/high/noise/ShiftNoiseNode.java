@@ -1,10 +1,12 @@
 package supercoder79.rho.ast.high.noise;
 
+import org.objectweb.asm.Opcodes;
 import supercoder79.rho.RemappingClassRefs;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.ast.common.ConstNode;
 import supercoder79.rho.ast.common.MulNode;
 import supercoder79.rho.ast.low.GetFieldNode;
+import supercoder79.rho.ast.low.IfElseNode;
 import supercoder79.rho.ast.low.InvokeNode;
 import supercoder79.rho.gen.CodegenContext;
 
@@ -23,7 +25,8 @@ public record ShiftNoiseNode(int noiseIdx, Node shiftX, Node shiftY, Node shiftZ
         Node y = new MulNode(shiftY, new ConstNode(0.25)).lower(ctx);
         Node z = new MulNode(shiftZ, new ConstNode(0.25)).lower(ctx);
 
-        return new MulNode(new InvokeNode(INVOKEVIRTUAL, RemappingClassRefs.CLASS_NORMALNOISE.get(), RemappingClassRefs.METHOD_NORMALNOISE_GETVALUE.get(), "(DDD)D", getfield, x, y, z), new ConstNode(4.0));
+        final InvokeNode invokeNode = new InvokeNode(INVOKEVIRTUAL, RemappingClassRefs.CLASS_NORMALNOISE.get(), RemappingClassRefs.METHOD_NORMALNOISE_GETVALUE.get(), "(DDD)D", getfield, x, y, z);
+        return new MulNode(new IfElseNode(getfield, Opcodes.IFNONNULL, invokeNode, new ConstNode(0.0)), new ConstNode(4.0));
     }
 
     @Override

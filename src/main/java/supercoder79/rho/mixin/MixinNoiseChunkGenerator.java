@@ -26,8 +26,8 @@ import java.util.Optional;
 @Mixin(NoiseBasedChunkGenerator.class)
 public abstract class MixinNoiseChunkGenerator extends ChunkGenerator {
 
-    public MixinNoiseChunkGenerator(Registry<StructureSet> registry, Optional<HolderSet<StructureSet>> optional, BiomeSource biomeSource) {
-        super(registry, optional, biomeSource);
+    public MixinNoiseChunkGenerator(BiomeSource biomeSource) {
+        super(biomeSource);
     }
 
     @Shadow protected abstract NoiseChunk createNoiseChunk(ChunkAccess chunkAccess, StructureManager structureManager, Blender blender, RandomState randomState);
