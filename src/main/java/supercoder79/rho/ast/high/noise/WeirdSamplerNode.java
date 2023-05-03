@@ -21,7 +21,7 @@ public record WeirdSamplerNode(Node inner, int noiseIdx, int doubleFuncIdx) impl
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, ClassRefs.descriptor(DOUBLE_FUNC), null, null));
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, ClassRefs.descriptor(DOUBLE_FUNC)), doubleFuncIdx);
 
-        Node getfield = new GetFieldNode(false, ctx.contextName(), id, ClassRefs.descriptor(DOUBLE_FUNC));
+        Node getfield = new GetFieldNode(false, null, id, ClassRefs.descriptor(DOUBLE_FUNC));
 
         Var var = ctx.getNextVar();
         VarAssignNode assign = new VarAssignNode(var, new InvokeNode(INVOKEINTERFACE, DOUBLE_FUNC, "get", "(D)D",

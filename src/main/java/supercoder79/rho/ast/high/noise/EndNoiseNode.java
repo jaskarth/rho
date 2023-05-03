@@ -20,7 +20,7 @@ public record EndNoiseNode(int noiseIdx) implements Node {
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, RemappingClassRefs.CLASS_SIMPLEXNOISE.getAsDescriptor(), null, null));
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, RemappingClassRefs.CLASS_SIMPLEXNOISE.getAsDescriptor()), noiseIdx);
 
-        Node getfield = new GetFieldNode(false, ctx.contextName(), id, RemappingClassRefs.CLASS_SIMPLEXNOISE.getAsDescriptor());
+        Node getfield = new GetFieldNode(false, null, id, RemappingClassRefs.CLASS_SIMPLEXNOISE.getAsDescriptor());
         Node x = new IDivNode(new ContextBlockInsnNode(CodegenContext.Type.X, false), new IConstNode(8));
         Node z = new IDivNode(new ContextBlockInsnNode(CodegenContext.Type.Z, false), new IConstNode(8));
 

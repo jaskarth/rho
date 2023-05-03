@@ -4,6 +4,7 @@ import org.objectweb.asm.MethodVisitor;
 import supercoder79.rho.ast.Node;
 import supercoder79.rho.gen.CodegenContext;
 
+import java.util.Arrays;
 import java.util.List;
 
 public record SequenceNode(Node... nodes) implements Node {
@@ -54,5 +55,18 @@ public record SequenceNode(Node... nodes) implements Node {
         }
 
         return "";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SequenceNode that = (SequenceNode) o;
+        return Arrays.equals(nodes, that.nodes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(nodes);
     }
 }

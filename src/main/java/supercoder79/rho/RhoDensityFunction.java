@@ -10,7 +10,7 @@ import net.minecraft.world.level.levelgen.DensityFunctions;
 import java.util.ArrayList;
 import java.util.List;
 
-public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
+public record RhoDensityFunction(RhoClass rho, double minValue, double maxValue) implements DensityFunction {
     @Override
     public double compute(FunctionContext functionContext) {
         return rho.compute(functionContext);
@@ -57,19 +57,7 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
             }
         }
 
-        return visitor.apply(new RhoDensityFunction(rho.makeNew(args)));
-    }
-
-    // Not needed
-
-    @Override
-    public double minValue() {
-        return 0;
-    }
-
-    @Override
-    public double maxValue() {
-        return 0;
+        return visitor.apply(new RhoDensityFunction(rho.makeNew(args), minValue, maxValue));
     }
 
     @Override
@@ -78,6 +66,6 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
     }
 
     public static final KeyDispatchDataCodec<RhoDensityFunction> CODEC = KeyDispatchDataCodec.of(
-            MapCodec.unit(new RhoDensityFunction(null))
+            MapCodec.unit(new RhoDensityFunction(null, 0, 0))
     );
 }

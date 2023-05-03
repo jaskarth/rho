@@ -25,17 +25,17 @@ public record CacheOnceNode(int index, Node node) implements Node {
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, CACHE_DESC), index);
 
         // TODO: dup instead of multiple getfield?
-        Node fieldCache = new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC);
+        Node fieldCache = new GetFieldNode(false, null, id, CACHE_DESC);
         Node isInCache = new InvokeNode(INVOKEINTERFACE, CACHE_NAME, "isInCache", ClassRefs.methodDescriptor(ClassRefs.BOOLEAN, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get()), new VarReferenceNode(new Var(1), ALOAD));
 
         return new IfElseNode(new SequenceNode(fieldCache, isInCache), IFEQ,
                 // TODO: why is this inverted?
                 new SequenceNode(
-                        new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC),
+                        new GetFieldNode(false, null, id, CACHE_DESC),
                         new InvokeNode(INVOKEINTERFACE, CACHE_NAME, "getAndPutInCache", ClassRefs.methodDescriptor(ClassRefs.DOUBLE, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get(), ClassRefs.DOUBLE), new VarReferenceNode(new Var(1), ALOAD), node.lower(ctx))
                 ),
                 new SequenceNode(
-                        new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC),
+                        new GetFieldNode(false, null, id, CACHE_DESC),
                         new InvokeNode(INVOKEINTERFACE, CACHE_NAME, "getFromCache", "()D")
                 )
         );

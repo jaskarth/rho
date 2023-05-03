@@ -16,6 +16,7 @@ import net.minecraft.server.packs.repository.ServerPacksSource;
 import net.minecraft.server.packs.resources.CloseableResourceManager;
 import net.minecraft.world.level.WorldDataConfiguration;
 import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.NoiseChunk;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -73,23 +74,21 @@ public final class TestStandalone {
 //        RhoCompiler.COMPILE_RECURSIVELY = false;
 
         final RegistryAccess.Frozen registryManager = getRegistryManager();
-        NoiseRouter router = registryManager.registryOrThrow(Registries.NOISE_SETTINGS).get(NoiseGeneratorSettings.OVERWORLD).noiseRouter();
+        final NoiseGeneratorSettings settings = registryManager.registryOrThrow(Registries.NOISE_SETTINGS).get(NoiseGeneratorSettings.OVERWORLD);
+        NoiseRouter router = settings.noiseRouter();
 //        RandomState randomState = RandomState.create(RegistryAccess.builtinCopy(), NoiseGeneratorSettings.OVERWORLD, 200);
 //        NoiseRouter router = randomState.router();
 //        System.out.println(router.ridges());
         DensityFunction func = router.finalDensity();
 
-        RhoClass compiled = RhoCompiler.compile(func);
-        DensityFunction rfunc = new RhoDensityFunction(compiled);
+        DensityFunction rfunc = RhoCompiler.compile(func);
 
         for (int i = 0; i < 10; i++) {
             long start = System.currentTimeMillis();
             double sum = 0;
-            for (int x = 0; x < 100; x++) {
-                for (int z = 0; z < 100; z++) {
-                    for (int y = 0; y < 100; y++) {
-                        sum += rfunc.compute(new DensityFunction.SinglePointContext(x, y, z));
-                    }
+            for (int x = 0; x < 1000; x++) {
+                for (int z = 0; z < 1000; z++) {
+                    sum += rfunc.compute(new DensityFunction.SinglePointContext(x << 2, 50, z << 2));
                 }
             }
             long end = System.currentTimeMillis();
@@ -100,11 +99,9 @@ public final class TestStandalone {
 
             start = System.currentTimeMillis();
             sum = 0;
-            for (int x = 0; x < 100; x++) {
-                for (int z = 0; z < 100; z++) {
-                    for (int y = 0; y < 100; y++) {
-                        sum += func.compute(new DensityFunction.SinglePointContext(x, y, z));
-                    }
+            for (int x = 0; x < 1000; x++) {
+                for (int z = 0; z < 1000; z++) {
+                    sum += func.compute(new DensityFunction.SinglePointContext(x << 2, 50, z << 2));
                 }
             }
             end = System.currentTimeMillis();

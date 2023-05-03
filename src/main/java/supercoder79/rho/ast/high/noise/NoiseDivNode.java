@@ -26,7 +26,7 @@ public record NoiseDivNode(int noiseIdx, Var var) implements Node {
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor(), null, null));
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor()), noiseIdx);
 
-        Node getfield = new GetFieldNode(false, ctx.contextName(), id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor());
+        Node getfield = new GetFieldNode(false, null, id, RemappingClassRefs.CLASS_NORMALNOISE.getAsDescriptor());
         Node x = new DivNode(new ContextBlockInsnNode(CodegenContext.Type.X), new VarReferenceNode(var));
         Node y = new DivNode(new ContextBlockInsnNode(CodegenContext.Type.Y), new VarReferenceNode(var));
         Node z = new DivNode(new ContextBlockInsnNode(CodegenContext.Type.Z), new VarReferenceNode(var));

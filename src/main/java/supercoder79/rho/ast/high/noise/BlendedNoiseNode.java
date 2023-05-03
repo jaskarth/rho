@@ -18,7 +18,7 @@ public record BlendedNoiseNode(int index) implements Node {
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, RemappingClassRefs.CLASS_DENSITY_FUNCTION.getAsDescriptor(), null, null));
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, RemappingClassRefs.CLASS_DENSITY_FUNCTION.getAsDescriptor()), index);
 
-        Node getfield = new GetFieldNode(false, ctx.contextName(), id, RemappingClassRefs.CLASS_DENSITY_FUNCTION.getAsDescriptor());
+        Node getfield = new GetFieldNode(false, null, id, RemappingClassRefs.CLASS_DENSITY_FUNCTION.getAsDescriptor());
         return new InvokeNode(INVOKEINTERFACE, RemappingClassRefs.CLASS_DENSITY_FUNCTION.get(), RemappingClassRefs.METHOD_DENSITY_FUNC_COMPUTE.get(),
                 ClassRefs.methodDescriptor(ClassRefs.DOUBLE, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get()),
                 getfield, new VarReferenceNode(new Var(1), ALOAD));

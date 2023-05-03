@@ -20,7 +20,7 @@ public record GetFieldNode(boolean isStatic, String owner, String name, String d
             visitor.visitVarInsn(ALOAD, 0);
         }
 
-        visitor.visitFieldInsn(isStatic ? GETSTATIC : GETFIELD, owner, name, descriptor);
+        visitor.visitFieldInsn(isStatic ? GETSTATIC : GETFIELD, owner != null ? owner : ctx.contextName(), name, descriptor);
     }
 
     @Override

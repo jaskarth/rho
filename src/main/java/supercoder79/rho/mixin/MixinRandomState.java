@@ -69,9 +69,7 @@ public class MixinRandomState {
 //                new RhoDensityFunction(
 //                        RhoCompiler.compile("InitialDensity", oldRouter.initialDensityWithoutJaggedness())
 //                ),
-                new RhoDensityFunction(
-                        RhoCompiler.compile("Final", oldRouter.finalDensity())
-                ),
+                RhoCompiler.compile("Final", oldRouter.finalDensity()),
                 oldRouter.veinToggle(),
                 oldRouter.veinRidged(),
                 oldRouter.veinGap()

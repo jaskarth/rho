@@ -18,7 +18,7 @@ public record SplineNode(int idx) implements Node {
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, RemappingClassRefs.CLASS_CUBIC_SPLINE.getAsDescriptor(), null, null));
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, RemappingClassRefs.CLASS_CUBIC_SPLINE.getAsDescriptor()), idx);
 
-        Node getfield = new GetFieldNode(false, ctx.contextName(), id, RemappingClassRefs.CLASS_CUBIC_SPLINE.getAsDescriptor());
+        Node getfield = new GetFieldNode(false, null, id, RemappingClassRefs.CLASS_CUBIC_SPLINE.getAsDescriptor());
         Node newNode = new NewNode(RemappingClassRefs.CLASS_SPLINEPOINT.get());
         Node dup = new RawInsnNode(DUP);
         Node varReference = new VarReferenceNode(new Var(1), ALOAD);
