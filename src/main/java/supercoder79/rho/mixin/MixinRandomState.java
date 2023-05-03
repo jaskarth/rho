@@ -34,42 +34,32 @@ public class MixinRandomState {
         NoiseRouter oldRouter = this.router;
 
         this.router = new NoiseRouter(
+//                RhoCompiler.compile("Barrier", oldRouter.barrierNoise()),
+//                RhoCompiler.compile("FluidLevelFloodedness", oldRouter.fluidLevelFloodednessNoise()),
+//                RhoCompiler.compile("FluidLevelSpread", oldRouter.fluidLevelSpreadNoise()),
+//                RhoCompiler.compile("Lava", oldRouter.lavaNoise()),
                 oldRouter.barrierNoise(),
                 oldRouter.fluidLevelFloodednessNoise(),
                 oldRouter.fluidLevelSpreadNoise(),
                 oldRouter.lavaNoise(),
-                ////
+//                RhoCompiler.compile("Temperature", oldRouter.temperature()),
+//                RhoCompiler.compile("Vegetation", oldRouter.vegetation()),
+//                RhoCompiler.compile("Continents", oldRouter.continents()),
+//                RhoCompiler.compile("Erosion", oldRouter.erosion()),
+//                RhoCompiler.compile("Depth", oldRouter.depth()),
                 oldRouter.temperature(),
                 oldRouter.vegetation(),
                 oldRouter.continents(),
                 oldRouter.erosion(),
                 oldRouter.depth(),
+//                RhoCompiler.compile("Ridges", oldRouter.ridges()),
+//                RhoCompiler.compile("InitialDensityWithoutJaggedness", oldRouter.initialDensityWithoutJaggedness()),
                 oldRouter.ridges(),
-                    ////
-//                new RhoDensityFunction(
-//                        RhoCompiler.compile("Temp", oldRouter.temperature())
-//                ),
-//                new RhoDensityFunction(
-//                        RhoCompiler.compile("Vegetation", oldRouter.vegetation())
-//                ),
-//                new RhoDensityFunction(
-//                        RhoCompiler.compile("Continents", oldRouter.continents())
-//                ),
-//                new RhoDensityFunction(
-//                        RhoCompiler.compile("Erosion", oldRouter.erosion())
-//                ),
-//                new RhoDensityFunction(
-//                        RhoCompiler.compile("Depth", oldRouter.depth())
-//                ),
-//                new RhoDensityFunction(
-//                        RhoCompiler.compile("Ridges", oldRouter.ridges())
-//                ),
-                // Initial density
                 oldRouter.initialDensityWithoutJaggedness(),
-//                new RhoDensityFunction(
-//                        RhoCompiler.compile("InitialDensity", oldRouter.initialDensityWithoutJaggedness())
-//                ),
                 RhoCompiler.compile("Final", oldRouter.finalDensity()),
+//                RhoCompiler.compile("VeinToggle", oldRouter.veinToggle()),
+//                RhoCompiler.compile("VeinRidged", oldRouter.veinRidged()),
+//                RhoCompiler.compile("VeinGap", oldRouter.veinGap())
                 oldRouter.veinToggle(),
                 oldRouter.veinRidged(),
                 oldRouter.veinGap()

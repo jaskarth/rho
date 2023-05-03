@@ -1,6 +1,7 @@
 package supercoder79.rho;
 
 import net.minecraft.util.ToFloatFunction;
+import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
 import java.util.ArrayList;
@@ -12,18 +13,9 @@ public record RhoSplineCoord(RhoClass rho, float minValue, float maxValue) imple
         return (float) rho.compute(point.context());
     }
 
-    public RhoSplineCoord remap() {
+    public RhoSplineCoord remap(DensityFunction.Visitor visitor) {
         List args = new ArrayList(rho.getArgs());
-        for (int i = 0; i < args.size(); i++) {
-            Object o = args.get(i);
-            if (o instanceof FlatCache2) {
-                args.set(i, new FlatCache2.Impl());
-            } else if (o instanceof SingleCache) {
-                args.set(i, new SingleCache.Impl());
-            } else if (o instanceof OnceCache) {
-                args.set(i, new OnceCache.Impl());
-            }
-        }
+        RhoDensityFunction.mapArgs(visitor, args);
 
         return new RhoSplineCoord(rho.makeNew(args), minValue, maxValue);
     }

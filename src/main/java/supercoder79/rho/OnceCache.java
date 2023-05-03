@@ -11,8 +11,13 @@ public interface OnceCache {
     double getAndPutInCache(DensityFunction.FunctionContext pos, double value);
 
     class Impl implements OnceCache {
+        private final int hashCode;
         private long lastIdx = -1;
         private double lastValue;
+
+        public Impl(int hashCode) {
+            this.hashCode = hashCode;
+        }
 
         // TODO: figure out how to implement last array
         @Override
@@ -36,6 +41,34 @@ public interface OnceCache {
                 this.lastValue = value;
             }
             return value;
+        }
+    }
+
+    class Noop implements OnceCache {
+        private final int hashCode;
+
+        public Noop(int hashCode) {
+            this.hashCode = hashCode;
+        }
+
+        @Override
+        public boolean isInCache(DensityFunction.FunctionContext ctx) {
+            return false;
+        }
+
+        @Override
+        public double getFromCache() {
+            return 0;
+        }
+
+        @Override
+        public double getAndPutInCache(DensityFunction.FunctionContext pos, double value) {
+            return value;
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
         }
     }
 }

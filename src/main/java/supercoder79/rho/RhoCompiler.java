@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 public final class RhoCompiler {
@@ -39,7 +40,7 @@ public final class RhoCompiler {
     private static int compileCount = 0;
 
     private static HashMap<Node, RhoClass> cachedRhoClass = new HashMap<>();
-    private static HashMap<String, Node> nameNodes = new HashMap<>();
+    private static IdentityHashMap<DensityFunctions.Marker, DensityFunctions.Marker> markerCache = new IdentityHashMap<>();
 
     public static synchronized DensityFunction compile(DensityFunction function) {
         return compile("", function);
@@ -173,9 +174,8 @@ public final class RhoCompiler {
                 }
 
                 if (obj instanceof DensityFunctions.Marker marker) {
-                    DensityFunction inner = compile(name + "_Int" + i , marker.wrapped());
-
-                    data.set(i, new DensityFunctions.Marker(marker.type(), inner));
+                    int finalI = i;
+                    data.set(i, markerCache.computeIfAbsent(marker, m -> new DensityFunctions.Marker(marker.type(), compile(name + "_Marker" + finalI, marker.wrapped()))));
                 }
             }
         }
@@ -199,7 +199,6 @@ public final class RhoCompiler {
 
         final RhoClass rhoClass = (RhoClass) o;
         cachedRhoClass.put(node, rhoClass);
-        nameNodes.put(name, node);
         return new RhoDensityFunction(rhoClass, function.minValue(), function.maxValue());
     }
 

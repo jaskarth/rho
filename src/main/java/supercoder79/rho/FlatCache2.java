@@ -15,34 +15,6 @@ public interface FlatCache2 {
 
     void init(ChunkPos pos);
 
-    class Threaded implements FlatCache2 {
-        private final ThreadLocal<Impl> impl = ThreadLocal.withInitial(Impl::new);
-
-        public Threaded() {
-
-        }
-
-        @Override
-        public boolean isInCache(long pos) {
-            return impl.get().isInCache(pos);
-        }
-
-        @Override
-        public double getFromCache(long pos) {
-            return impl.get().getFromCache(pos);
-        }
-
-        @Override
-        public double getAndPutInCache(long pos, double value) {
-            return impl.get().getAndPutInCache(pos, value);
-        }
-
-        @Override
-        public void init(ChunkPos pos) {
-            impl.get().init(pos);
-        }
-    }
-
 
     class Impl implements FlatCache2 {
         private static final int EXTRA_RAD = 4;
@@ -53,6 +25,8 @@ public interface FlatCache2 {
             Arrays.fill(REF, 0.0);
         }
 
+        private final int hashCode;
+
         private final double[] cache = new double[SIZE2];
         private final BitSet initialized = new BitSet(SIZE2);
 
@@ -61,6 +35,10 @@ public interface FlatCache2 {
 
         private static int hits = 0;
         private static int misses = 0;
+
+        public Impl(int hashCode) {
+            this.hashCode = hashCode;
+        }
 
         public void init(ChunkPos pos) {
             this.startX = (pos.x << 2) - EXTRA_RAD;
@@ -103,6 +81,11 @@ public interface FlatCache2 {
             return x * SIZE + z;
         }
 
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+
 //        static {
 //            Thread t = new Thread(() -> {
 //                while (true) {
@@ -119,5 +102,38 @@ public interface FlatCache2 {
 //            t.setDaemon(true);
 //            t.start();
 //        }
+    }
+
+    class Noop implements FlatCache2 {
+        private final int hashCode;
+
+        public Noop(int hashCode) {
+            this.hashCode = hashCode;
+        }
+
+        @Override
+        public boolean isInCache(long pos) {
+            return false;
+        }
+
+        @Override
+        public double getFromCache(long pos) {
+            return 0;
+        }
+
+        @Override
+        public double getAndPutInCache(long pos, double value) {
+            return value;
+        }
+
+        @Override
+        public void init(ChunkPos pos) {
+
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
     }
 }

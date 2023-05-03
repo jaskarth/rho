@@ -8,33 +8,15 @@ public interface SingleCache {
 
     double getAndPutInCache(long pos, double value);
 
-    class Threaded implements SingleCache {
-        private final ThreadLocal<Impl> impl = ThreadLocal.withInitial(Impl::new);
-
-        public Threaded() {
-
-        }
-
-        @Override
-        public boolean isInCache(long pos) {
-            return impl.get().isInCache(pos);
-        }
-
-        @Override
-        public double getFromCache(long pos) {
-            return impl.get().getFromCache(pos);
-        }
-
-        @Override
-        public double getAndPutInCache(long pos, double value) {
-            return impl.get().getAndPutInCache(pos, value);
-        }
-    }
-
     class Impl implements SingleCache {
+        private final int hashCode;
+
         private long key;
         private double value;
 
+        public Impl(int hashCode) {
+            this.hashCode = hashCode;
+        }
 
         @Override
         public boolean isInCache(long pos) {
@@ -52,6 +34,38 @@ public interface SingleCache {
             this.key = pos;
 
             return value;
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+    }
+    class Noop implements SingleCache {
+        private final int hashCode;
+
+        public Noop(int hashCode) {
+            this.hashCode = hashCode;
+        }
+
+        @Override
+        public boolean isInCache(long pos) {
+            return false;
+        }
+
+        @Override
+        public double getFromCache(long pos) {
+            return 0;
+        }
+
+        @Override
+        public double getAndPutInCache(long pos, double value) {
+            return value;
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
         }
     }
 }

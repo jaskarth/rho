@@ -3,7 +3,6 @@ package supercoder79.rho;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.util.KeyDispatchDataCodec;
-import net.minecraft.util.ToFloatFunction;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
@@ -24,14 +23,24 @@ public record RhoDensityFunction(RhoClass rho, double minValue, double maxValue)
     @Override
     public DensityFunction mapAll(Visitor visitor) {
         List args = new ArrayList(rho.getArgs());
+        mapArgs(visitor, args);
+
+        return visitor.apply(new RhoDensityFunction(rho.makeNew(args), minValue, maxValue));
+    }
+
+    public static void mapArgs(Visitor visitor, List args) {
         for (int i = 0; i < args.size(); i++) {
             Object o = args.get(i);
-            if (o instanceof FlatCache2) {
-                args.set(i, new FlatCache2.Impl());
-            } else if (o instanceof SingleCache) {
-                args.set(i, new SingleCache.Impl());
-            } else if (o instanceof OnceCache) {
-                args.set(i, new OnceCache.Impl());
+//            if (o instanceof FlatCache2) {
+//                args.set(i, new FlatCache2.Impl(o.hashCode()));
+//            } else
+//                if (o instanceof SingleCache) {
+//                args.set(i, new SingleCache.Impl(o.hashCode()));
+//            } else if (o instanceof OnceCache) {
+//                args.set(i, new OnceCache.Impl(o.hashCode()));
+//            }
+            if (visitor instanceof RhoCacheAwareVisitor cacheAwareVisitor && (o instanceof FlatCache2 || o instanceof SingleCache || o instanceof OnceCache)) {
+                args.set(i, cacheAwareVisitor.rho$visitCache(o));
             }
 
             if (o instanceof DensityFunctions.Marker marker) {
@@ -49,15 +58,13 @@ public record RhoDensityFunction(RhoClass rho, double minValue, double maxValue)
                     }
 
                     if (coordinate instanceof RhoSplineCoord coord) {
-                        return coord.remap();
+                        return coord.remap(visitor);
                     }
 
                     return coordinate;
                 }));
             }
         }
-
-        return visitor.apply(new RhoDensityFunction(rho.makeNew(args), minValue, maxValue));
     }
 
     @Override
