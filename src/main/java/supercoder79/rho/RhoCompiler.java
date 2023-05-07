@@ -174,8 +174,11 @@ public final class RhoCompiler {
                 }
 
                 if (obj instanceof DensityFunctions.Marker marker) {
-                    int finalI = i;
-                    data.set(i, markerCache.computeIfAbsent(marker, m -> new DensityFunctions.Marker(marker.type(), compile(name + "_Marker" + finalI, marker.wrapped()))));
+                    data.set(i, new DensityFunctions.Marker(marker.type(), compile(name + "_Marker" + i, marker.wrapped())));
+                }
+
+                if (obj instanceof FlatCache2.Noop flatCache2) {
+                    data.set(i, new FlatCache2.Noop(flatCache2.hashCode(), compile(name + "_FlatCache2_" + i, flatCache2.getNoiseFiller())));
                 }
             }
         }

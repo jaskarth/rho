@@ -1,89 +1,76 @@
 package supercoder79.rho;
 
+import net.minecraft.core.QuartPos;
 import net.minecraft.world.level.ChunkPos;
-
-import java.util.Arrays;
-import java.util.BitSet;
+import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.NoiseChunk;
+import supercoder79.rho.mixin.NoiseChunkAccessor;
 
 public interface FlatCache2 {
 
-    boolean isInCache(long pos);
+    boolean isInCache(DensityFunction.FunctionContext ctx);
 
-    double getFromCache(long pos);
+    double getFromCache(DensityFunction.FunctionContext ctx);
 
-    double getAndPutInCache(long pos, double value);
+//    double getAndPutInCache(long pos, double value);
 
     void init(ChunkPos pos);
 
+    DensityFunction getNoiseFiller();
+
 
     class Impl implements FlatCache2 {
-        private static final int EXTRA_RAD = 4;
-        private static final int SIZE = 5 + (EXTRA_RAD * 2);
-        private static final int SIZE2 = SIZE * SIZE;
-        private static final double[] REF = new double[SIZE2];
-        static {
-            Arrays.fill(REF, 0.0);
-        }
 
         private final int hashCode;
+        private final DensityFunction noiseFiller;
+        private final int startX;
+        private final int startZ;
+        private final int noiseSizeXZ;
+        private final double[] cache;
 
-        private final double[] cache = new double[SIZE2];
-        private final BitSet initialized = new BitSet(SIZE2);
-
-        private int startX;
-        private int startZ;
-
-        private static int hits = 0;
-        private static int misses = 0;
-
-        public Impl(int hashCode) {
+        public Impl(int hashCode, DensityFunction noiseFiller, NoiseChunk noiseChunk) {
             this.hashCode = hashCode;
+            this.noiseFiller = noiseFiller;
+            this.startX = ((NoiseChunkAccessor) noiseChunk).getFirstNoiseX();
+            this.startZ = ((NoiseChunkAccessor) noiseChunk).getFirstNoiseZ();
+            this.noiseSizeXZ = ((NoiseChunkAccessor) noiseChunk).getNoiseSizeXZ() + 1;
+            this.cache = new double[noiseSizeXZ * noiseSizeXZ];
+            int index = 0;
+            for(int i = 0; i < this.noiseSizeXZ; ++i) {
+                int x = QuartPos.toBlock(this.startX + i);
+                for(int l = 0; l < this.noiseSizeXZ; ++l) {
+                    int z = QuartPos.toBlock(this.startZ + l);
+//                    this.values[i][l] = densityFunction.compute(new DensityFunction.SinglePointContext(x, 0, z));
+                    this.cache[index ++] = noiseFiller.compute(new DensityFunction.SinglePointContext(x, 0, z));
+                }
+            }
+        }
+
+        @Override
+        public boolean isInCache(DensityFunction.FunctionContext ctx) {
+            int x = QuartPos.fromBlock(ctx.blockX()) - startX;
+            int z = QuartPos.fromBlock(ctx.blockZ()) - startZ;
+            return x >= 0 && x < noiseSizeXZ && z >= 0 && z < noiseSizeXZ;
+        }
+
+        @Override
+        public double getFromCache(DensityFunction.FunctionContext ctx) {
+            int x = QuartPos.fromBlock(ctx.blockX()) - startX;
+            int z = QuartPos.fromBlock(ctx.blockZ()) - startZ;
+            return this.cache[x * this.noiseSizeXZ + z];
         }
 
         public void init(ChunkPos pos) {
-            this.startX = (pos.x << 2) - EXTRA_RAD;
-            this.startZ = (pos.z << 2) - EXTRA_RAD;
-            this.initialized.clear();
-            System.arraycopy(REF, 0, this.cache, 0, SIZE2);
-        }
-
-        public boolean isInCache(long pos) {
-            int idx = getIndex(pos);
-
-            return idx >= 0 && idx < SIZE2 && this.initialized.get(idx);
-        }
-
-        @Override
-        public double getFromCache(long pos) {
-//            hits++;
-            return cache[getIndex(pos)];
-        }
-
-        @Override
-        public double getAndPutInCache(long pos, double value) {
-            int idx = getIndex(pos);
-//            misses++;
-
-            if (idx >= 0 && idx < SIZE2) {
-                cache[idx] = value;
-                initialized.set(idx);
-            } else {
-                boolean bl = false;
-            }
-
-            return value;
-        }
-
-        private int getIndex(long pos) {
-            int x = (ChunkPos.getX(pos) >> 2) - this.startX;
-            int z = (ChunkPos.getZ(pos) >> 2) - this.startZ;
-
-            return x * SIZE + z;
         }
 
         @Override
         public int hashCode() {
             return hashCode;
+        }
+
+        @Override
+        public DensityFunction getNoiseFiller() {
+            return noiseFiller;
         }
 
 //        static {
@@ -106,25 +93,27 @@ public interface FlatCache2 {
 
     class Noop implements FlatCache2 {
         private final int hashCode;
+        private final DensityFunction noiseFiller;
 
-        public Noop(int hashCode) {
+        public Noop(int hashCode, DensityFunction noiseFiller) {
             this.hashCode = hashCode;
+            this.noiseFiller = noiseFiller;
         }
 
         @Override
-        public boolean isInCache(long pos) {
+        public boolean isInCache(DensityFunction.FunctionContext ctx) {
             return false;
         }
 
         @Override
-        public double getFromCache(long pos) {
+        public double getFromCache(DensityFunction.FunctionContext ctx) {
             return 0;
         }
 
-        @Override
-        public double getAndPutInCache(long pos, double value) {
-            return value;
-        }
+//        @Override
+//        public double getAndPutInCache(long pos, double value) {
+//            return value;
+//        }
 
         @Override
         public void init(ChunkPos pos) {
@@ -134,6 +123,11 @@ public interface FlatCache2 {
         @Override
         public int hashCode() {
             return hashCode;
+        }
+
+        @Override
+        public DensityFunction getNoiseFiller() {
+            return noiseFiller;
         }
     }
 }

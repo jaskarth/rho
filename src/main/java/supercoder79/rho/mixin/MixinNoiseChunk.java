@@ -84,15 +84,16 @@ public class MixinNoiseChunk {
 
     @Unique
     private DensityFunction.Visitor rho$modifyVisitor0(DensityFunction.Visitor visitor) {
+        NoiseChunk thiz = (NoiseChunk) (Object) this;
         return new RhoCacheAwareVisitor() {
             @Override
             public Object rho$visitCache(Object node) {
                 if (node instanceof SingleCache) {
                     return rho$cache.computeIfAbsent(node.hashCode(), SingleCache.Impl::new);
                 } else if (node instanceof OnceCache) {
-                    return rho$cache.computeIfAbsent(node.hashCode(), OnceCache.Impl::new);
-                } else if (node instanceof FlatCache2) {
-                    return rho$cache.computeIfAbsent(node.hashCode(), FlatCache2.Impl::new);
+                    return rho$cache.computeIfAbsent(node.hashCode(), hashCode -> new OnceCache.Impl(hashCode, thiz));
+                } else if (node instanceof FlatCache2 flatCache2) {
+                    return rho$cache.computeIfAbsent(node.hashCode(), hashCode -> new FlatCache2.Impl(hashCode, visitor.apply(flatCache2.getNoiseFiller().mapAll(visitor)), thiz));
                 } else {
                     return node;
                 }

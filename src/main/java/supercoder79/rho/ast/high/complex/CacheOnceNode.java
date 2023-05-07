@@ -15,11 +15,6 @@ public record CacheOnceNode(int index, Node node) implements Node {
 
     @Override
     public Node lower(CodegenContext ctx) {
-
-        // FIXME: implement
-        Var varJ = ctx.getNextVar();
-        ctx.addLocalVar(varJ, ClassRefs.LONG);
-
         String id = ctx.getNextFieldId("cache2d_");
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, CACHE_DESC, null, null));
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, CACHE_DESC), index);

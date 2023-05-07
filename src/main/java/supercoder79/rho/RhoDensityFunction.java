@@ -41,14 +41,7 @@ public record RhoDensityFunction(RhoClass rho, double minValue, double maxValue)
 //            }
             if (visitor instanceof RhoCacheAwareVisitor cacheAwareVisitor && (o instanceof FlatCache2 || o instanceof SingleCache || o instanceof OnceCache)) {
                 args.set(i, cacheAwareVisitor.rho$visitCache(o));
-            }
-
-            if (o instanceof DensityFunctions.Marker marker) {
-                args.set(i, visitor.apply(marker));
-            }
-
-            if (o instanceof DensityFunctions.BeardifierOrMarker beardifierOrMarker) {
-                args.set(i, visitor.apply(beardifierOrMarker));
+                continue;
             }
 
             if (o instanceof CubicSpline s) {
@@ -63,6 +56,11 @@ public record RhoDensityFunction(RhoClass rho, double minValue, double maxValue)
 
                     return coordinate;
                 }));
+                continue;
+            }
+
+            if (o instanceof DensityFunction df) {
+                args.set(i, visitor.apply(df.mapAll(visitor)));
             }
         }
     }
