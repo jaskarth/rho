@@ -353,7 +353,7 @@ public class RhoAquifer implements Aquifer {
 
 	private int computeSurfaceLevel(int i, int j, int k, Aquifer.FluidStatus fluidStatus, int l, boolean bl) {
 		DensityFunction.SinglePointContext singlePointContext = new DensityFunction.SinglePointContext(i, j, k);
-		if (OverworldBiomeBuilder.isDeepDarkRegion(this.erosion.compute(singlePointContext), this.depth.compute(singlePointContext))) {
+		if (OverworldBiomeBuilder.isDeepDarkRegion(this.erosion, this.depth, singlePointContext)) {
 			return DimensionType.WAY_BELOW_MIN_Y;
 		}
 

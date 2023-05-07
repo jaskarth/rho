@@ -66,7 +66,7 @@ public final class DotExporter {
         builder.append("}");
 
         try {
-            Path dot = Path.of("dot", name + ".dot");
+            Path dot = Path.of("dot", RhoCompiler.currentName, name + ".dot");
             dot.toFile().getParentFile().mkdirs();
             Files.writeString(dot, builder.toString());
         } catch (IOException e) {

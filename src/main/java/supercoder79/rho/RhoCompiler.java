@@ -1,6 +1,7 @@
 package supercoder79.rho;
 
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.Holder;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.util.ToFloatFunction;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -9,7 +10,11 @@ import org.objectweb.asm.*;
 import org.objectweb.asm.commons.AnalyzerAdapter;
 import supercoder79.rho.ast.McToAst;
 import supercoder79.rho.ast.Node;
+import supercoder79.rho.ast.common.ConstNode;
+import supercoder79.rho.ast.common.ReturnNode;
 import supercoder79.rho.ast.high.complex.CacheFlatNode;
+import supercoder79.rho.ast.low.GetFieldNode;
+import supercoder79.rho.ast.low.InvokeNode;
 import supercoder79.rho.gen.CodegenContext;
 import supercoder79.rho.gen.DotExporter;
 import supercoder79.rho.opto.RunOptoPasses;
@@ -18,6 +23,8 @@ import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 public final class RhoCompiler {
@@ -26,17 +33,21 @@ public final class RhoCompiler {
     public static String currentStatus = "";
     public static boolean DO_COMPILE = true;
     public static boolean COMPILE_RECURSIVELY = true;
-    public static boolean DUMP_DEBUG_DATA = false;
+    public static boolean DUMP_DEBUG_DATA = true;
 
     // TODO: handle on-demand compilation better
 
     private static int compileCount = 0;
 
-    public static synchronized RhoClass compile(DensityFunction function) {
+    private record CachedNode(Node node, List<Pair<CodegenContext.MinSelfFieldRef, Integer>> ctorRefs) {}
+    private static HashMap<CachedNode, RhoClass> cachedRhoClass = new HashMap<>();
+    private static IdentityHashMap<DensityFunctions.Marker, DensityFunctions.Marker> markerCache = new IdentityHashMap<>();
+
+    public static synchronized DensityFunction compile(DensityFunction function) {
         return compile("", function);
     }
 
-    public static synchronized RhoClass compile(String suffix, DensityFunction function) {
+    public static synchronized DensityFunction compile(String suffix, DensityFunction function) {
         compileCount++;
         isCompilingCurrently = true;
         // TODO: include dimension
@@ -74,6 +85,37 @@ public final class RhoCompiler {
         CodegenContext ctx = new CodegenContext(name, visitor, method);
 
         node = RunOptoPasses.optimizeAst(ctx, node, true);
+
+        // shortcut for constant functions
+        {
+            Node actualNode = ((ReturnNode) node).body();
+            if (actualNode instanceof ConstNode constNode) {
+                isCompilingCurrently = false;
+                return DensityFunctions.constant(constNode.value());
+            } else if (actualNode instanceof InvokeNode invokeNode) {
+                // delegate node: new InvokeNode(INVOKEINTERFACE, RemappingClassRefs.CLASS_DENSITY_FUNCTION.get(), RemappingClassRefs.METHOD_DENSITY_FUNC_COMPUTE.get(),
+                //                ClassRefs.methodDescriptor(ClassRefs.DOUBLE, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get()),
+                //                getfield, new VarReferenceNode(new Var(1), ALOAD))
+                if (invokeNode.type() == Opcodes.INVOKEINTERFACE && invokeNode.clazz().equals(RemappingClassRefs.CLASS_DENSITY_FUNCTION.get()) && invokeNode.name().equals(RemappingClassRefs.METHOD_DENSITY_FUNC_COMPUTE.get())) {
+                    final Node receiver = invokeNode.args()[0];
+                    if (receiver instanceof GetFieldNode getFieldNode) {
+                        for (Pair<CodegenContext.MinSelfFieldRef, Integer> ctorRef : ctx.ctorRefs) {
+                            if (ctorRef.getFirst().name().equals(getFieldNode.name())) {
+                                isCompilingCurrently = false;
+                                return (DensityFunction) data.get(ctorRef.getSecond());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        CachedNode cachedNode = new CachedNode(node, ctx.ctorRefs);
+        // cache codegen
+        if (cachedRhoClass.containsKey(cachedNode)) {
+            isCompilingCurrently = false;
+            return new RhoDensityFunction(cachedRhoClass.get(cachedNode).makeNew(data), function.minValue(), function.maxValue());
+        }
 
         Label start = new Label();
         Label end = new Label();
@@ -132,6 +174,14 @@ public final class RhoCompiler {
                 if (spline != null) {
                     data.set(i, spline);
                 }
+
+                if (obj instanceof DensityFunctions.Marker marker) {
+                    data.set(i, new DensityFunctions.Marker(marker.type(), compile(name + "_Marker" + i, marker.wrapped())));
+                }
+
+                if (obj instanceof FlatCache2.Noop flatCache2) {
+                    data.set(i, new FlatCache2.Noop(flatCache2.hashCode(), compile(name + "_FlatCache2_" + i, flatCache2.getNoiseFiller())));
+                }
             }
         }
 
@@ -152,7 +202,9 @@ public final class RhoCompiler {
         // Debugging to dump a single density function at a time
 //        if (true) throw new RuntimeException();
 
-        return (RhoClass)o;
+        final RhoClass rhoClass = (RhoClass) o;
+        cachedRhoClass.put(cachedNode, rhoClass);
+        return new RhoDensityFunction(rhoClass, function.minValue(), function.maxValue());
     }
 
     private static CubicSpline compileSpline(String name, Object obj) {
@@ -168,10 +220,9 @@ public final class RhoCompiler {
 
             boolean didWork = false;
             if (coordinate instanceof DensityFunctions.Spline.Coordinate coord) {
-                coordinate = new RhoSplineCoord(
-                        compile(name + "_SplC", coord.function().value()),
-                        coord.minValue(),
-                        coord.maxValue()
+                final DensityFunction function = coord.function().value();
+                coordinate = new DensityFunctions.Spline.Coordinate(
+                        new Holder.Direct<>(compile(name + "_SplC", coord.function().value()))
                 );
                 didWork = true;
             }

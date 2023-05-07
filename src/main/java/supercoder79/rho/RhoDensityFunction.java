@@ -3,13 +3,13 @@ package supercoder79.rho;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.util.CubicSpline;
 import net.minecraft.util.KeyDispatchDataCodec;
-import net.minecraft.util.ToFloatFunction;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
+public record RhoDensityFunction(RhoClass rho, double minValue, double maxValue) implements DensityFunction {
     @Override
     public double compute(FunctionContext functionContext) {
         return rho.compute(functionContext);
@@ -22,13 +22,26 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
 
     @Override
     public DensityFunction mapAll(Visitor visitor) {
-        List args = rho.getArgs();
+        List args = new ArrayList(rho.getArgs());
+        mapArgs(visitor, args);
+
+        return visitor.apply(new RhoDensityFunction(rho.makeNew(args), minValue, maxValue));
+    }
+
+    public static void mapArgs(Visitor visitor, List args) {
         for (int i = 0; i < args.size(); i++) {
             Object o = args.get(i);
-            if (o instanceof FlatCache2) {
-                args.set(i, new FlatCache2.Threaded());
-            } else if (o instanceof SingleCache) {
-                args.set(i, new SingleCache.Threaded());
+//            if (o instanceof FlatCache2) {
+//                args.set(i, new FlatCache2.Impl(o.hashCode()));
+//            } else
+//                if (o instanceof SingleCache) {
+//                args.set(i, new SingleCache.Impl(o.hashCode()));
+//            } else if (o instanceof OnceCache) {
+//                args.set(i, new OnceCache.Impl(o.hashCode()));
+//            }
+            if (visitor instanceof RhoCacheAwareVisitor cacheAwareVisitor && (o instanceof FlatCache2 || o instanceof SingleCache || o instanceof OnceCache)) {
+                args.set(i, cacheAwareVisitor.rho$visitCache(o));
+                continue;
             }
 
             if (o instanceof CubicSpline s) {
@@ -38,27 +51,18 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
                     }
 
                     if (coordinate instanceof RhoSplineCoord coord) {
-                        return coord.remap();
+                        return coord.remap(visitor);
                     }
 
                     return coordinate;
                 }));
+                continue;
+            }
+
+            if (o instanceof DensityFunction df) {
+                args.set(i, visitor.apply(df.mapAll(visitor)));
             }
         }
-
-        return visitor.apply(new RhoDensityFunction(rho.makeNew(args)));
-    }
-
-    // Not needed
-
-    @Override
-    public double minValue() {
-        return 0;
-    }
-
-    @Override
-    public double maxValue() {
-        return 0;
     }
 
     @Override
@@ -67,6 +71,6 @@ public record RhoDensityFunction(RhoClass rho) implements DensityFunction {
     }
 
     public static final KeyDispatchDataCodec<RhoDensityFunction> CODEC = KeyDispatchDataCodec.of(
-            MapCodec.unit(new RhoDensityFunction(null))
+            MapCodec.unit(new RhoDensityFunction(null, 0, 0))
     );
 }

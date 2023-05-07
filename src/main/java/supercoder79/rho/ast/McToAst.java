@@ -2,7 +2,10 @@ package supercoder79.rho.ast;
 
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
+import net.minecraft.world.level.levelgen.synth.BlendedNoise;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import supercoder79.rho.FlatCache2;
+import supercoder79.rho.OnceCache;
 import supercoder79.rho.SingleCache;
 import supercoder79.rho.ast.common.AddNode;
 import supercoder79.rho.ast.common.ConstNode;
@@ -10,10 +13,7 @@ import supercoder79.rho.ast.common.MulNode;
 import supercoder79.rho.ast.common.ReturnNode;
 import supercoder79.rho.ast.high.*;
 import supercoder79.rho.ast.high.complex.*;
-import supercoder79.rho.ast.high.noise.EndNoiseNode;
-import supercoder79.rho.ast.high.noise.NoiseNode;
-import supercoder79.rho.ast.high.noise.ShiftNoiseDirectNode;
-import supercoder79.rho.ast.high.noise.ShiftNoiseNode;
+import supercoder79.rho.ast.high.noise.*;
 import supercoder79.rho.ast.low.ContextBlockInsnNode;
 import supercoder79.rho.gen.CodegenContext;
 
@@ -72,50 +72,101 @@ public final class McToAst {
             return new EndNoiseNode(idxNext);
         } else if (function instanceof DensityFunctions.Marker marker) {
             if (marker.type() == DensityFunctions.Marker.Type.Interpolated) {
-                return new InterpolationNode(asNode(marker.wrapped(), data));
-            } else if (marker.type() == DensityFunctions.Marker.Type.Cache2D) {
                 int idxNext = data.size();
-                data.add(new SingleCache.Threaded());
+                data.add(marker);
+
+                return new DelegatingNode(idxNext);
+            }
+            else if (marker.type() == DensityFunctions.Marker.Type.Cache2D) {
+                int idxNext = data.size();
+                data.add(new SingleCache.Noop(marker.hashCode()));
 
                 return new Cache2dNode(idxNext, asNode(marker.wrapped(), data));
-            } else if (marker.type() == DensityFunctions.Marker.Type.CacheAllInCell) {
-                return new CacheCellNode(asNode(marker.wrapped(), data));
-            } else if (marker.type() == DensityFunctions.Marker.Type.CacheOnce) {
-                return new CacheOnceNode(asNode(marker.wrapped(), data));
-            } else if (marker.type() == DensityFunctions.Marker.Type.FlatCache) {
+            }
+//            else if (marker.type() == DensityFunctions.Marker.Type.CacheAllInCell) {
+//                return new CacheCellNode(asNode(marker.wrapped(), data));
+//            }
+            else if (marker.type() == DensityFunctions.Marker.Type.CacheOnce) {
                 int idxNext = data.size();
-                data.add(new FlatCache2.Threaded());
+                data.add(new OnceCache.Noop(marker.hashCode()));
+
+                return new CacheOnceNode(idxNext, asNode(marker.wrapped(), data));
+            }
+            else if (marker.type() == DensityFunctions.Marker.Type.FlatCache) {
+                int idxNext = data.size();
+                data.add(new FlatCache2.Noop(marker.hashCode(), marker.wrapped()));
 
                 return new CacheFlatNode(idxNext, asNode(marker.wrapped(), data));
             }
+            int idxNext = data.size();
+            data.add(marker);
+
+            return new DelegatingNode(idxNext);
         } else if (function instanceof DensityFunctions.Noise noise) {
-            int idxNext = data.size();
-            data.add(noise.noise().noise());
+            final NormalNoise normalNoise = noise.noise().noise();
+            if (normalNoise != null) {
+                int idxNext = data.size();
+                data.add(normalNoise);
 
-            return new NoiseNode(idxNext, noise.xzScale(), noise.yScale());
+                return new NoiseNode(idxNext, noise.xzScale(), noise.yScale(), true);
+            } else {
+                return new ConstNode(0.0);
+            }
         } else if (function instanceof DensityFunctions.ShiftedNoise shiftedNoise) {
-            int idxNext = data.size();
-            data.add(shiftedNoise.noise().noise());
+            final NormalNoise normalNoise = shiftedNoise.noise().noise();
+            if (normalNoise != null) {
+                int idxNext = data.size();
+                data.add(normalNoise);
 
-            return new ShiftNoiseDirectNode(idxNext, shiftedNoise.xzScale(), shiftedNoise.yScale(),
-                    asNode(shiftedNoise.shiftX(), data), asNode(shiftedNoise.shiftY(), data), asNode(shiftedNoise.shiftZ(), data));
+                return new ShiftNoiseDirectNode(idxNext, shiftedNoise.xzScale(), shiftedNoise.yScale(),
+                        asNode(shiftedNoise.shiftX(), data), asNode(shiftedNoise.shiftY(), data), asNode(shiftedNoise.shiftZ(), data), true);
+            } else {
+                return new ConstNode(0.0);
+            }
         } else if (function instanceof DensityFunctions.Shift shift) {
-            int idxNext = data.size();
-            data.add(shift.offsetNoise().noise());
+            final NormalNoise normalNoise = shift.offsetNoise().noise();
+            if (normalNoise != null) {
+                int idxNext = data.size();
+                data.add(normalNoise);
 
-            return new ShiftNoiseNode(idxNext, new ContextBlockInsnNode(CodegenContext.Type.X), new ContextBlockInsnNode(CodegenContext.Type.Y), new ContextBlockInsnNode(CodegenContext.Type.Z));
+                return new ShiftNoiseNode(idxNext, new ContextBlockInsnNode(CodegenContext.Type.X), new ContextBlockInsnNode(CodegenContext.Type.Y), new ContextBlockInsnNode(CodegenContext.Type.Z), true);
+            } else {
+                return new ConstNode(0.0);
+            }
         } else if (function instanceof DensityFunctions.ShiftA shiftA) {
-            int idxNext = data.size();
-            data.add(shiftA.offsetNoise().noise());
+            final NormalNoise normalNoise = shiftA.offsetNoise().noise();
+            if (normalNoise != null) {
+                int idxNext = data.size();
+                data.add(normalNoise);
 
-            return new ShiftNoiseNode(idxNext, new ContextBlockInsnNode(CodegenContext.Type.X), new ConstNode(0), new ContextBlockInsnNode(CodegenContext.Type.Z));
+                return new ShiftNoiseNode(idxNext, new ContextBlockInsnNode(CodegenContext.Type.X), new ConstNode(0), new ContextBlockInsnNode(CodegenContext.Type.Z), true);
+            } else {
+                return new ConstNode(0.0);
+            }
         } else if (function instanceof DensityFunctions.ShiftB shiftB) {
-            int idxNext = data.size();
-            data.add(shiftB.offsetNoise().noise());
+            final NormalNoise normalNoise = shiftB.offsetNoise().noise();
+            if (normalNoise != null) {
+                int idxNext = data.size();
+                data.add(normalNoise);
 
-            return new ShiftNoiseNode(idxNext, new ContextBlockInsnNode(CodegenContext.Type.X), new ContextBlockInsnNode(CodegenContext.Type.Y), new ConstNode(0));
-        } else if (function instanceof DensityFunctions.WeirdScaledSampler weirdScaledSampler) {
-//            return new YGradNode();
+                return new ShiftNoiseNode(idxNext, new ContextBlockInsnNode(CodegenContext.Type.Z), new ContextBlockInsnNode(CodegenContext.Type.X), new ConstNode(0), true);
+            } else {
+                return new ConstNode(0.0);
+            }
+        } else if (function instanceof DensityFunctions.WeirdScaledSampler weird) {
+            final NormalNoise normalNoise = weird.noise().noise();
+
+            if (normalNoise != null) {
+                int idxNoise = data.size();
+                data.add(normalNoise);
+
+                int idxFunc = data.size();
+                data.add(weird.rarityValueMapper().mapper);
+
+                return new WeirdSamplerNode(asNode(weird.input(), data), idxNoise, idxFunc);
+            } else {
+                return new ConstNode(0.0);
+            }
         } else if (function instanceof DensityFunctions.BlendDensity blendDensity) {
             // TODO: implement these three
             return asNode(blendDensity.input(), data);
@@ -124,7 +175,10 @@ public final class McToAst {
         } else if (function instanceof DensityFunctions.BlendOffset blendOffset) {
             return new ConstNode(0);
         } else if (function instanceof DensityFunctions.BeardifierOrMarker beard) {
-//            return new YGradNode();
+            int idxNext = data.size();
+            data.add(beard);
+
+            return new DelegatingNode(idxNext);
         } else if (function instanceof DensityFunctions.Spline spline) {
             int idxNext = data.size();
             data.add(spline.spline());
@@ -134,8 +188,17 @@ public final class McToAst {
             return new ConstNode(constant.value());
         } else if (function instanceof DensityFunctions.HolderHolder holder2) {
             return asNode(holder2.function().value(), data);
+        } else if (function instanceof BlendedNoise blended) {
+            int idxNext = data.size();
+            data.add(blended);
+
+            return new BlendedNoiseNode(idxNext);
         }
 
-        throw new IllegalStateException("Could not decompose density function for type: " + function.getClass().getName());
+        System.err.println("Warning: Could not decompose density function for type: " + function.getClass().getName());
+
+        int idxNext = data.size();
+        data.add(function);
+        return new DelegatingNode(idxNext);
     }
 }

@@ -21,7 +21,7 @@ public record CubeNode(Node inner) implements Node {
         // x * x * x
         //
         // Avoid recalculating x
-        Node defVar = new VarAssignNode(var, inner);
+        Node defVar = new VarAssignNode(var, inner.lower(ctx));
         Node mul = new MulNode(new VarReferenceNode(var), new VarReferenceNode(var));
         mul = new MulNode(mul, new VarReferenceNode(var));
 

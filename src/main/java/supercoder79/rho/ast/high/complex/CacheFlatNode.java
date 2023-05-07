@@ -14,33 +14,20 @@ public record CacheFlatNode(int index, Node node) implements Node {
 
     @Override
     public Node lower(CodegenContext ctx) {
-
-        Var varJ = ctx.getNextVar();
-        ctx.addLocalVar(varJ, ClassRefs.LONG);
-
         String id = ctx.getNextFieldId("flatCache2_");
         ctx.addFieldGen(cl -> cl.visitField(ACC_PRIVATE, id, CACHE_DESC, null, null));
         ctx.addCtorFieldRef(new CodegenContext.MinSelfFieldRef(id, CACHE_DESC), index);
 
-        Node asLong = new InvokeNode(
-                INVOKESTATIC, RemappingClassRefs.CLASS_CHUNKPOS.get(), RemappingClassRefs.METHOD_CHUNKPOS_ASLONG.get(), "(II)J",
-                new ContextBlockInsnNode(CodegenContext.Type.X, false), new ContextBlockInsnNode(CodegenContext.Type.Z, false));
-
-        Node varDef = new VarAssignNode(varJ, asLong, LSTORE);
-
         // TODO: dup instead of multiple getfield?
-        Node fieldCache = new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC);
-        Node isInCache = new InvokeNode(INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "isInCache", "(J)Z", new VarReferenceNode(varJ, LLOAD));
+        Node fieldCache = new GetFieldNode(false, null, id, CACHE_DESC);
+        Node isInCache = new InvokeNode(INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "isInCache", ClassRefs.methodDescriptor(ClassRefs.BOOLEAN, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get()), new VarReferenceNode(new Var(1), ALOAD));
 
-        return new IfElseNode(new SequenceNode(varDef, fieldCache, isInCache), IFEQ,
+        return new IfElseNode(new SequenceNode(fieldCache, isInCache), IFEQ,
                 // TODO: why is this inverted?
+                node.lower(ctx),
                 new SequenceNode(
-                        new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC),
-                        new InvokeNode(INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "getAndPutInCache", "(JD)D", new VarReferenceNode(varJ, LLOAD), node.lower(ctx))
-                ),
-                new SequenceNode(
-                        new GetFieldNode(false, ctx.contextName(), id, CACHE_DESC),
-                        new InvokeNode(INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "getFromCache", "(J)D", new VarReferenceNode(varJ, LLOAD))
+                        new GetFieldNode(false, null, id, CACHE_DESC),
+                        new InvokeNode(INVOKEINTERFACE, ClassRefs.FLAT_CACHE_2, "getFromCache", ClassRefs.methodDescriptor(ClassRefs.DOUBLE, RemappingClassRefs.CLASS_FUNCTION_CONTEXT.get()), new VarReferenceNode(new Var(1), ALOAD))
                 )
         );
 //        throw new RuntimeException();
