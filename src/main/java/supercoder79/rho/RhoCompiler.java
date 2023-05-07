@@ -39,7 +39,8 @@ public final class RhoCompiler {
 
     private static int compileCount = 0;
 
-    private static HashMap<Node, RhoClass> cachedRhoClass = new HashMap<>();
+    private record CachedNode(Node node, List<Pair<CodegenContext.MinSelfFieldRef, Integer>> ctorRefs) {}
+    private static HashMap<CachedNode, RhoClass> cachedRhoClass = new HashMap<>();
     private static IdentityHashMap<DensityFunctions.Marker, DensityFunctions.Marker> markerCache = new IdentityHashMap<>();
 
     public static synchronized DensityFunction compile(DensityFunction function) {
@@ -109,10 +110,11 @@ public final class RhoCompiler {
             }
         }
 
+        CachedNode cachedNode = new CachedNode(node, ctx.ctorRefs);
         // cache codegen
-        if (cachedRhoClass.containsKey(node)) {
+        if (cachedRhoClass.containsKey(cachedNode)) {
             isCompilingCurrently = false;
-            return new RhoDensityFunction(cachedRhoClass.get(node).makeNew(data), function.minValue(), function.maxValue());
+            return new RhoDensityFunction(cachedRhoClass.get(cachedNode).makeNew(data), function.minValue(), function.maxValue());
         }
 
         Label start = new Label();
@@ -201,7 +203,7 @@ public final class RhoCompiler {
 //        if (true) throw new RuntimeException();
 
         final RhoClass rhoClass = (RhoClass) o;
-        cachedRhoClass.put(node, rhoClass);
+        cachedRhoClass.put(cachedNode, rhoClass);
         return new RhoDensityFunction(rhoClass, function.minValue(), function.maxValue());
     }
 
