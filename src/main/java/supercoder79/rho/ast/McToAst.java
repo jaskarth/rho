@@ -5,6 +5,7 @@ import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import supercoder79.rho.FlatCache2;
+import supercoder79.rho.OnceCache;
 import supercoder79.rho.SingleCache;
 import supercoder79.rho.ast.common.AddNode;
 import supercoder79.rho.ast.common.ConstNode;
@@ -85,12 +86,12 @@ public final class McToAst {
 //            else if (marker.type() == DensityFunctions.Marker.Type.CacheAllInCell) {
 //                return new CacheCellNode(asNode(marker.wrapped(), data));
 //            }
-//            else if (marker.type() == DensityFunctions.Marker.Type.CacheOnce) {
-//                int idxNext = data.size();
-//                data.add(new OnceCache.Noop(marker.hashCode()));
-//
-//                return new CacheOnceNode(idxNext, asNode(marker.wrapped(), data));
-//            }
+            else if (marker.type() == DensityFunctions.Marker.Type.CacheOnce) {
+                int idxNext = data.size();
+                data.add(new OnceCache.Noop(marker.hashCode()));
+
+                return new CacheOnceNode(idxNext, asNode(marker.wrapped(), data));
+            }
             else if (marker.type() == DensityFunctions.Marker.Type.FlatCache) {
                 int idxNext = data.size();
                 data.add(new FlatCache2.Noop(marker.hashCode(), marker.wrapped()));
