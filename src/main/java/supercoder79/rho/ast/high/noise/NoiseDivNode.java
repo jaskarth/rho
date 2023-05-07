@@ -34,7 +34,7 @@ public record NoiseDivNode(int noiseIdx, Var var) implements Node {
         final InvokeNode invokeNode = new InvokeNode(INVOKEVIRTUAL, RemappingClassRefs.CLASS_NORMALNOISE.get(), RemappingClassRefs.METHOD_NORMALNOISE_GETVALUE.get(),
                 ClassRefs.methodDescriptor(ClassRefs.DOUBLE, ClassRefs.DOUBLE, ClassRefs.DOUBLE, ClassRefs.DOUBLE),
                 getfield, x, y, z);
-        return new IfElseNode(getfield, Opcodes.IFNONNULL, invokeNode, new ConstNode(0.0));
+        return invokeNode;
     }
 
     @Override

@@ -154,13 +154,19 @@ public final class McToAst {
                 return new ConstNode(0.0);
             }
         } else if (function instanceof DensityFunctions.WeirdScaledSampler weird) {
-            int idxNoise = data.size();
-            data.add(weird.noise().noise());
+            final NormalNoise normalNoise = weird.noise().noise();
 
-            int idxFunc = data.size();
-            data.add(weird.rarityValueMapper().mapper);
+            if (normalNoise != null) {
+                int idxNoise = data.size();
+                data.add(normalNoise);
 
-            return new WeirdSamplerNode(asNode(weird.input(), data), idxNoise, idxFunc);
+                int idxFunc = data.size();
+                data.add(weird.rarityValueMapper().mapper);
+
+                return new WeirdSamplerNode(asNode(weird.input(), data), idxNoise, idxFunc);
+            } else {
+                return new ConstNode(0.0);
+            }
         } else if (function instanceof DensityFunctions.BlendDensity blendDensity) {
             // TODO: implement these three
             return asNode(blendDensity.input(), data);
